@@ -1,0 +1,78 @@
+body {
+    background-color: #F6F4EE;
+}
+
+.num-tick {
+    font-variant-numeric: tabular-nums;
+}
+
+.glass-tube {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
+}
+
+@keyframes ripple {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+.water-surface {
+    animation: ripple 3s ease-in-out infinite;
+}
+
+.pulse-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+}
+
+.toggle-knob {
+    transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.toggle-track {
+    transition: background-color 0.25s ease;
+}
+
+#logList::-webkit-scrollbar {
+    width: 5px;
+}
+
+#logList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#logList::-webkit-scrollbar-thumb {
+    background: #C7CFC4;
+    border-radius: 999px;
+}
+
+#logList::-webkit-scrollbar-thumb:hover {
+    background: #9BB89F;
+}
+
+#logList {
+    scrollbar-width: thin;
+    scrollbar-color: #C7CFC4 transparent;
+}
+
+::selection {
+    background: #2F6B4F;
+    color: white;
+}

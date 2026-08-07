@@ -1,0 +1,37 @@
+body {
+    background-color: #F6F4EE;
+}
+
+.num-tick {
+    font-variant-numeric: tabular-nums;
+}
+
+@keyframes pulse-dot {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+}
+
+.pulse-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.range-btn.active {
+    background-color: #2F6B4F;
+    color: #fff;
+}
+
+.usage-bar {
+    transition: width 0.6s ease;
+}
+
+::selection {
+    background: #2F6B4F;
+    color: white;
+}

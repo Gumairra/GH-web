@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>I-WILL Greenhouse — Statistik & Riwayat</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet" href="assets/css/stats.css">
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+            rel="stylesheet">
+        <script
+            src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    </head>
+    <body class="font-body text-ink min-h-screen antialiased">
+
+        <div class="max-w-7xl mx-auto px-5 sm:px-8 py-8">
+
+            <!-- HEADER -->
+            <header
+                class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-11 h-11 rounded-full bg-leaf flex items-center justify-center shrink-0">
+                        <svg width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="white" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22c0-8-5-13-9-13 0 7 4 13 9 13z" />
+                            <path d="M12 22c0-9 5-15 9-15 0 8-4 15-9 15z" />
+                            <path d="M12 22V10" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p
+                            class="text-[11px] tracking-[0.18em] text-mute uppercase font-medium">Statistik
+                            & Riwayat</p>
+                        <h1
+                            class="font-display text-2xl sm:text-[28px] leading-tight text-ink -mt-0.5">I-WILL · Greenhouse</h1>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <nav
+                        class="flex items-center gap-1 bg-white border border-line rounded-full p-1">
+                        <a href="index.html"
+                            class="text-xs font-medium px-3 py-1.5 rounded-full text-mute hover:text-ink transition-colors">Monitoring</a>
+                        <span
+                            class="text-xs font-medium px-3 py-1.5 rounded-full bg-leaf text-white">Statistik</span>
+                    </nav>
+                    <div
+                        class="flex items-center gap-2 bg-white border border-line rounded-full pl-2.5 pr-3.5 py-1.5">
+                        <span
+                            class="w-2 h-2 rounded-full bg-leaf pulse-dot"></span>
+                        <span class="text-xs font-medium text-ink">Perangkat
+                            Online</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- RANGE SELECTOR -->
+            <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+                <p class="text-sm text-mute">Menampilkan riwayat data sensor dan
+                    pemakaian aktuator</p>
+                <div
+                    class="flex items-center gap-1 bg-white border border-line rounded-full p-1">
+                    <button data-range="today" onclick="setRange('today')"
+                        class="range-btn active text-xs font-medium px-3.5 py-1.5 rounded-full text-mute transition-colors">Hari Ini</button>
+                    <button data-range="week" onclick="setRange('week')"
+                        class="range-btn text-xs font-medium px-3.5 py-1.5 rounded-full text-mute transition-colors">7 Hari</button>
+                    <button data-range="month" onclick="setRange('month')"
+                        class="range-btn text-xs font-medium px-3.5 py-1.5 rounded-full text-mute transition-colors">30 Hari</button>
+                </div>
+            </div>
+
+            <!-- SUMMARY CARDS -->
+            <section id="summaryGrid"
+                class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8"></section>
+
+            <!-- CHARTS -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+
+                <article class="bg-card border border-line rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium text-ink">Suhu Udara &
+                            Suhu Air</p>
+                        <div
+                            class="flex items-center gap-3 text-[11px] text-mute">
+                            <span class="flex items-center gap-1"><span
+                                    class="w-2 h-2 rounded-full bg-clay inline-block"></span>Udara</span>
+                            <span class="flex items-center gap-1"><span
+                                    class="w-2 h-2 rounded-full bg-azure inline-block"></span>Air</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-mute mb-3">Satuan °C</p>
+                    <div class="h-56"><canvas id="chartSuhu"></canvas></div>
+                </article>
+
+                <article class="bg-card border border-line rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium text-ink">Kelembapan
+                            Udara</p>
+                        <span
+                            class="text-[11px] text-mute flex items-center gap-1"><span
+                                class="w-2 h-2 rounded-full bg-leaf inline-block"></span>%RH</span>
+                    </div>
+                    <p class="text-xs text-mute mb-3">Target ideal 60–80%</p>
+                    <div class="h-56"><canvas
+                            id="chartKelembapan"></canvas></div>
+                </article>
+
+                <article class="bg-card border border-line rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium text-ink">pH Air & TDS</p>
+                        <div
+                            class="flex items-center gap-3 text-[11px] text-mute">
+                            <span class="flex items-center gap-1"><span
+                                    class="w-2 h-2 rounded-full bg-leaf inline-block"></span>pH</span>
+                            <span class="flex items-center gap-1"><span
+                                    class="w-2 h-2 rounded-full bg-azure inline-block"></span>TDS
+                                (ppm)</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-mute mb-3">Dua sumbu berbeda
+                        skala</p>
+                    <div class="h-56"><canvas
+                            id="chartAirKualitas"></canvas></div>
+                </article>
+
+                <article class="bg-card border border-line rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium text-ink">Ketinggian Air
+                            Tandon</p>
+                        <span
+                            class="text-[11px] text-mute flex items-center gap-1"><span
+                                class="w-2 h-2 rounded-full bg-azure inline-block"></span>%</span>
+                    </div>
+                    <p class="text-xs text-mute mb-3">Penurunan menandakan
+                        konsumsi, lonjakan menandakan pengisian pompa</p>
+                    <div class="h-56"><canvas id="chartAirLevel"></canvas></div>
+                </article>
+            </section>
+
+            <!-- PEMAKAIAN AKTUATOR -->
+            <section class="bg-card border border-line rounded-2xl p-6 mb-6">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <p class="text-sm font-medium text-ink">Pemakaian
+                            Aktuator</p>
+                        <p class="text-xs text-mute mt-0.5">Total durasi aktif
+                            dan jumlah penyalaan pada rentang terpilih</p>
+                    </div>
+                </div>
+                <div id="usageList" class="space-y-4"></div>
+            </section>
+
+            <!-- <footer class="text-center text-[11px] text-mute pt-2">
+                Node ESP32 · Data riwayat tersimpan di basis data lokal
+            </footer> -->
+
+        </div>
+        <script src="stats.js"></script>
+    </body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>I-WILL GreenHouse — Sistem Monitoring IoT</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="assets/css/main.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+            rel="stylesheet">
+    </head>
+    <body class="font-body text-ink min-h-screen antialiased">
+
+        <div class="max-w-7xl mx-auto px-5 sm:px-8 py-8">
+
+            <!-- HEADER -->
+            <header
+                class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-11 h-11 rounded-full bg-leaf flex items-center justify-center shrink-0">
+                        <svg width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="white" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22c0-8-5-13-9-13 0 7 4 13 9 13z" />
+                            <path d="M12 22c0-9 5-15 9-15 0 8-4 15-9 15z" />
+                            <path d="M12 22V10" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p
+                            class="text-[11px] tracking-[0.18em] text-mute uppercase font-medium">Sistem
+                            Monitoring IoT</p>
+                        <h1
+                            class="font-display text-2xl sm:text-[28px] leading-tight text-ink -mt-0.5">I-WILL · Greenhouse</h1>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <nav
+                        class="flex items-center gap-1 bg-white border border-line rounded-full p-1">
+                        <span
+                            class="text-xs font-medium px-3 py-1.5 rounded-full bg-leaf text-white">Monitoring</span>
+                        <a href="stats.html"
+                            class="text-xs font-medium px-3 py-1.5 rounded-full text-mute hover:text-ink transition-colors">Statistik</a>
+                    </nav>
+
+                    <div class="flex items-center gap-2 bg-white border border-line">
+                        <button class="text-xs font-medium px-3 py-1.5 rounded-full text-mute hover:text-ink transition-colors">
+                            Import Excel
+                        </button>
+                            
+                    
+                    </div>
+                    <div
+                        class="flex items-center gap-2 bg-white border border-line rounded-full pl-2.5 pr-3.5 py-1.5">
+                        <span
+                            class="w-2 h-2 rounded-full bg-leaf pulse-dot"></span>
+                        <span class="text-xs font-medium text-ink">Perangkat
+                            Online</span>
+                    </div>
+                    <div class="text-right hidden sm:block">
+                        <p id="clock"
+                            class="font-mono text-sm text-ink num-tick">--:--:--</p>
+                        <p id="dateLabel" class="text-[11px] text-mute">memuat
+                            tanggal…</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- SENSOR GRID -->
+            <section
+                class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
+
+                <!-- Suhu Udara -->
+                <article
+                    class="bg-card border border-line rounded-2xl p-5 flex flex-col gap-4">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p
+                                class="text-[11px] tracking-[0.12em] text-mute uppercase font-medium">Suhu
+                                Udara</p>
+                            <p class="text-xs text-mute mt-0.5">Sensor DHT22</p>
+                        </div>
+                        <svg width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="#2F6B4F" stroke-width="2"
+                            stroke-linecap="round"><path
+                                d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0Z" /></svg>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                        <span id="suhuUdara"
+                            class="font-mono text-3xl font-semibold text-ink num-tick">28.4</span>
+                        <span class="text-sm text-mute">°C</span>
+                    </div>
+                    <div
+                        class="h-1.5 rounded-full bg-leaf-light overflow-hidden">
+                        <div id="suhuUdaraBar"
+                            class="h-full bg-leaf rounded-full transition-all duration-700"
+                            style="width:55%"></div>
+                    </div>
+                    <p id="suhuUdaraStatus"
+                        class="text-xs font-medium text-leaf">Normal ·
+                        20-32°C</p>
+                </article>
+
+                <!-- Kelembapan Udara -->
+                <article
+                    class="bg-card border border-line rounded-2xl p-5 flex flex-col gap-4">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p
+                                class="text-[11px] tracking-[0.12em] text-mute uppercase font-medium">Kelembapan
+                                Udara</p>
+                            <p class="text-xs text-mute mt-0.5">Sensor DHT22</p>
+                        </div>
+                        <svg width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="#2F6B4F" stroke-width="2"
+                            stroke-linecap="round"><path
+                                d="M12 2.69s-5.5 6.13-5.5 10.81a5.5 5.5 0 0 0 11 0c0-4.68-5.5-10.81-5.5-10.81Z" /></svg>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                        <span id="kelembapan"
+                            class="font-mono text-3xl font-semibold text-ink num-tick">68</span>
+                        <span class="text-sm text-mute">%RH</span>
+                    </div>
+                    <div
+                        class="h-1.5 rounded-full bg-leaf-light overflow-hidden">
+                        <div id="kelembapanBar"
+                            class="h-full bg-leaf rounded-full transition-all duration-700"
+                            style="width:68%"></div>
+                    </div>
+                    <p id="kelembapanStatus"
+                        class="text-xs font-medium text-leaf">Normal ·
+                        60-80%</p>
+                </article>
+
+                <!-- pH Air -->
+                <article
+                    class="bg-card border border-line rounded-2xl p-5 flex flex-col gap-4">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p
+                                class="text-[11px] tracking-[0.12em] text-mute uppercase font-medium">pH
+                                Air</p>
+                            <p class="text-xs text-mute mt-0.5">Sensor
+                                pH-4502C</p>
+                        </div>
+                        <svg width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="#3E7FC9" stroke-width="2"
+                            stroke-linecap="round"><path
+                                d="M9 2h6M10 2v6.5L4.5 18a2 2 0 0 0 1.7 3h11.6a2 2 0 0 0 1.7-3L14 8.5V2" /></svg>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                        <span id="phAir"
+                            class="font-mono text-3xl font-semibold text-ink num-tick">6.5</span>
+                        <span class="text-sm text-mute">pH</span>
+                    </div>
+                    <div
+                        class="h-1.5 rounded-full bg-leaf-light overflow-hidden">
+                        <div id="phAirBar"
+                            class="h-full bg-leaf rounded-full transition-all duration-700"
+                            style="width:65%"></div>
+                    </div>
+                    <p id="phAirStatus"
+                        class="text-xs font-medium text-leaf">Normal ·
+                        6.0-7.0</p>
+                </article>
+
+                <!-- Suhu Air -->
+                <article
+                    class="bg-card border border-line rounded-2xl p-5 flex flex-col gap-4">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p
+                                class="text-[11px] tracking-[0.12em] text-mute uppercase font-medium">Suhu
+                                Air</p>
+                            <p class="text-xs text-mute mt-0.5">Sensor
+                                DS18B20</p>
+                        </div>
+                        <svg width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="#3E7FC9" stroke-width="2"
+                            stroke-linecap="round"><path
+                                d="M2 12h2M6 6.3 7.4 7.7M12 4V2M17.6 7.7 19 6.3M20 12h2" /><path
+                                d="M12 18a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" /></svg>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                        <span id="suhuAir"
+                            class="font-mono text-3xl font-semibold text-ink num-tick">24.8</span>
+                        <span class="text-sm text-mute">°C</span>
+                    </div>
+                    <div
+                        class="h-1.5 rounded-full bg-leaf-light overflow-hidden">
+                        <div id="suhuAirBar"
+                            class="h-full bg-leaf rounded-full transition-all duration-700"
+                            style="width:50%"></div>
+                    </div>
+                    <p id="suhuAirStatus"
+                        class="text-xs font-medium text-leaf">Normal ·
+                        22-28°C</p>
+                </article>
+
+                <!-- TDS Air -->
+                <article
+                    class="bg-card border border-line rounded-2xl p-5 flex flex-col gap-4">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p
+                                class="text-[11px] tracking-[0.12em] text-mute uppercase font-medium">TDS
+                                Air
+                            </p>
+                            <p class="text-xs text-mute mt-0.5">Sensor TDS Meter
+                                v1.0
+                            </p>
+                        </div>
+                        <svg width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="#3E7FC9" stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="6" cy="13" r="2.2" />
+                            <circle cx="13" cy="8" r="2.2" />
+                            <circle cx="18" cy="15" r="2.2" />
+                        </svg>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                        <span id="tdsAir"
+                            class="font-mono text-3xl font-semibold text-ink num-tick">850</span>
+                        <span class="text-sm text-mute">ppm</span>
+                    </div>
+                    <div
+                        class="h-1.5 rounded-full bg-leaf-light overflow-hidden">
+                        <div id="tdsAirBar"
+                            class="h-full bg-leaf rounded-full transition-all duration-700"
+                            style="width:42%"></div>
+                    </div>
+                    <p id="tdsAirStatus"
+                        class="text-xs font-medium text-leaf">Normal · 650-1200
+                        ppm</p>
+                </article>
+            </section>
+
+            <!-- KETINGGIAN AIR + KONTROL -->
+            <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
+
+                <!-- Ketinggian Air: signature glass tube -->
+                <article
+                    class="lg:col-span-2 bg-card border border-line rounded-2xl p-6 flex flex-col">
+                    <div class="flex items-start justify-between mb-5">
+                        <div>
+                            <p
+                                class="text-[11px] tracking-[0.12em] text-mute uppercase font-medium">Ketinggian
+                                Air</p>
+                            <p class="text-xs text-mute mt-0.5">Sensor
+                                Ultrasonik HC-SR04 · Tandon</p>
+                        </div>
+                        <span id="airLevelTag"
+                            class="text-[11px] font-medium px-2.5 py-1 rounded-full bg-leaf-light text-leaf-dark">Cukup</span>
+                    </div>
+
+                    <div class="flex items-center gap-6 flex-1">
+                        <!-- tabung kaca -->
+                        <div
+                            class="relative w-16 h-44 rounded-full border-2 border-line bg-soil overflow-hidden mx-auto shrink-0">
+                            <div id="waterFill"
+                                class="absolute bottom-0 left-0 right-0 bg-leaf/80 glass-tube transition-all duration-700"
+                                style="height:62%">
+                                <div
+                                    class="water-surface absolute -top-1 left-0 right-0 h-2 bg-leaf rounded-full"></div>
+                            </div>
+                            <!-- garis skala -->
+                            <div
+                                class="absolute inset-0 flex flex-col justify-between py-3 px-2 pointer-events-none">
+                                <div class="w-2.5 h-px bg-ink/15"></div>
+                                <div class="w-2.5 h-px bg-ink/15"></div>
+                                <div class="w-2.5 h-px bg-ink/15"></div>
+                                <div class="w-2.5 h-px bg-ink/15"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 space-y-3">
+                            <div>
+                                <div class="flex items-baseline gap-1">
+                                    <span id="airLevelPercent"
+                                        class="font-mono text-3xl font-semibold text-ink num-tick">62</span>
+                                    <span class="text-sm text-mute">%</span>
+                                </div>
+                                <p class="text-xs text-mute mt-0.5">dari
+                                    kapasitas tandon</p>
+                            </div>
+                            <div class="border-t border-line pt-3">
+                                <div class="flex items-baseline gap-1">
+                                    <span id="airLevelCm"
+                                        class="font-mono text-lg font-medium text-ink num-tick">37.2</span>
+                                    <span class="text-xs text-mute">cm jarak
+                                        permukaan</span>
+                                </div>
+                            </div>
+                            <p
+                                class="text-[11px] text-mute leading-relaxed">Pembacaan
+                                dikonversi dari jarak sensor ke tinggi air
+                                berdasarkan tinggi tandon 60 cm.</p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Kontrol Aktuator -->
+                <article
+                    class="lg:col-span-3 bg-card border border-line rounded-2xl p-6">
+                    <p
+                        class="text-[11px] tracking-[0.12em] text-mute uppercase font-medium mb-4">Kontrol
+                        Aktuator</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <!-- Kipas -->
+                        <div
+                            class="border border-line rounded-xl p-4 flex flex-col gap-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div id="kipasIconWrap"
+                                        class="w-9 h-9 rounded-full bg-leaf-light flex items-center justify-center transition-colors duration-300">
+                                        <svg id="kipasIcon" width="17"
+                                            height="17" viewBox="0 0 24 24"
+                                            fill="none" stroke="#2F6B4F"
+                                            stroke-width="1.8"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            class="transition-transform duration-700">
+                                            <path
+                                                d="M12 12c2-3 6-4 8-1s-1 6-4 7c1-3 0-5-4-6Z" />
+                                            <path
+                                                d="M12 12c-3-2-4-6-1-8s6 1 7 4c-3-1-5 0-6 4Z" />
+                                            <path
+                                                d="M12 12c-2 3-6 4-8 1s1-6 4-7c-1 3 0 5 4 6Z" />
+                                            <circle cx="12" cy="12" r="1.4"
+                                                fill="#2F6B4F" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-medium text-ink">Kipas
+                                            Sirkulasi</p>
+                                        <p id="kipasStatusText"
+                                            class="text-xs text-mute">Nonaktif</p>
+                                    </div>
+                                </div>
+                                <button id="kipasToggle"
+                                    onclick="toggleActuator('kipas')"
+                                    class="toggle-track w-11 h-6 rounded-full bg-line relative shrink-0"
+                                    aria-pressed="false"
+                                    aria-label="Saklar kipas sirkulasi">
+                                    <span
+                                        class="toggle-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm"></span>
+                                </button>
+                            </div>
+                            <p
+                                class="text-[11px] text-mute leading-relaxed border-t border-line pt-3">Menyala
+                                otomatis bila suhu udara melewati 32°C, dapat
+                                ditimpa manual lewat saklar ini.</p>
+                        </div>
+
+                        <!-- Lampu -->
+                        <div
+                            class="border border-line rounded-xl p-4 flex flex-col gap-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div id="lampuIconWrap"
+                                        class="w-9 h-9 rounded-full bg-leaf-light flex items-center justify-center transition-colors duration-300">
+                                        <svg id="lampuIcon" width="17"
+                                            height="17" viewBox="0 0 24 24"
+                                            fill="none" stroke="#2F6B4F"
+                                            stroke-width="1.8"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <path d="M9 18h6M10 21h4" />
+                                            <path
+                                                d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.3 1 2.5h6c0-1.2.3-1.8 1-2.5A6 6 0 0 0 12 3Z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-medium text-ink">Lampu</p>
+                                        <p id="lampuStatusText"
+                                            class="text-xs text-mute">Nonaktif</p>
+                                    </div>
+                                </div>
+                                <button id="lampuToggle"
+                                    onclick="toggleActuator('lampu')"
+                                    class="toggle-track w-11 h-6 rounded-full bg-line relative shrink-0"
+                                    aria-pressed="false"
+                                    aria-label="Saklar lampu tumbuh">
+                                    <span
+                                        class="toggle-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm"></span>
+                                </button>
+                            </div>
+                            <p
+                                class="text-[11px] text-mute leading-relaxed border-t border-line pt-3">Dijadwalkan
+                                menyala pukul 18.00-06.00 untuk menambah
+                                fotoperiode tanaman.</p>
+                        </div>
+
+                        <!-- Pompa Air -->
+                        <div
+                            class="border border-line rounded-xl p-4 flex flex-col gap-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div id="pompaAirIconWrap"
+                                        class="w-9 h-9 rounded-full bg-leaf-light flex items-center justify-center transition-colors duration-300">
+                                        <svg id="pompaAirIcon" width="17"
+                                            height="17" viewBox="0 0 24 24"
+                                            fill="none" stroke="#3E7FC9"
+                                            stroke-width="1.8"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <path
+                                                d="M12 2.69s-5.5 6.13-5.5 10.81a5.5 5.5 0 0 0 11 0c0-4.68-5.5-10.81-5.5-10.81Z" />
+                                            <path d="M9.5 13.5h5" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-medium text-ink">Pompa
+                                            Air</p>
+                                        <p id="pompaAirStatusText"
+                                            class="text-xs text-mute">Nonaktif</p>
+                                    </div>
+                                </div>
+                                <button id="pompaAirToggle"
+                                    onclick="toggleActuator('pompaAir')"
+                                    class="toggle-track w-11 h-6 rounded-full bg-line relative shrink-0"
+                                    aria-pressed="false"
+                                    aria-label="Saklar pompa air">
+                                    <span
+                                        class="toggle-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm"></span>
+                                </button>
+                            </div>
+                            <p
+                                class="text-[11px] text-mute leading-relaxed border-t border-line pt-3">Menyala
+                                otomatis untuk mengisi ulang tandon bila
+                                ketinggian air di bawah 20%.</p>
+                        </div>
+
+                        <!-- Pompa Nutrisi -->
+                        <div
+                            class="border border-line rounded-xl p-4 flex flex-col gap-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div id="pompaNutrisiIconWrap"
+                                        class="w-9 h-9 rounded-full bg-leaf-light flex items-center justify-center transition-colors duration-300">
+                                        <svg id="pompaNutrisiIcon" width="17"
+                                            height="17" viewBox="0 0 24 24"
+                                            fill="none" stroke="#C97B3E"
+                                            stroke-width="1.8"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <path
+                                                d="M9 2h6M10 2v6.5L4.5 18a2 2 0 0 0 1.7 3h11.6a2 2 0 0 0 1.7-3L14 8.5V2" />
+                                            <circle cx="9.5" cy="17" r="0.6"
+                                                fill="#C97B3E" stroke="none" />
+                                            <circle cx="13" cy="18.3" r="0.6"
+                                                fill="#C97B3E" stroke="none" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-medium text-ink">Pompa
+                                            Nutrisi</p>
+                                        <p id="pompaNutrisiStatusText"
+                                            class="text-xs text-mute">Nonaktif</p>
+                                    </div>
+                                </div>
+                                <button id="pompaNutrisiToggle"
+                                    onclick="toggleActuator('pompaNutrisi')"
+                                    class="toggle-track w-11 h-6 rounded-full bg-line relative shrink-0"
+                                    aria-pressed="false"
+                                    aria-label="Saklar pompa nutrisi">
+                                    <span
+                                        class="toggle-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm"></span>
+                                </button>
+                            </div>
+                            <p
+                                class="text-[11px] text-mute leading-relaxed border-t border-line pt-3">Menyala
+                                otomatis menambah larutan nutrisi saat TDS air
+                                turun di bawah 650 ppm.</p>
+                        </div>
+                    </div>
+
+                    <!-- log singkat -->
+                    <div class="mt-4 pt-4 border-t border-line">
+                        <p
+                            class="text-[11px] tracking-[0.12em] text-mute uppercase font-medium mb-2">Aktivitas
+                            Terbaru</p>
+                        <ul id="logList"
+                            class="space-y-1.5 text-xs text-mute font-mono max-h-32 overflow-y-auto pr-2 scroll-smooth"></ul>
+                    </div>
+                </article>
+            </section>
+
+            <!-- <footer class="text-center text-[11px] text-mute pt-2">
+                Node ESP32 · Sinkron terakhir <span id="lastSync"
+                    class="font-mono">baru saja</span>
+            </footer> -->
+        </div>
+    </body>
+    <script src="assets/js/main.js"></script>
+</html>
