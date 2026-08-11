@@ -1,0 +1,43 @@
+.header-shell {
+    position: relative;
+}
+
+.header-brand-icon {
+    background-color: var(--color-leaf) !important;
+}
+
+.header-nav-link {
+    border-radius: 9999px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-mute);
+    transition: all 180ms ease;
+}
+
+.header-nav-link:hover {
+    color: var(--color-ink);
+}
+
+.header-nav-link--active {
+    background-color: var(--color-leaf) !important;
+    color: #fff !important;
+}
+
+.header-action-btn {
+    color: var(--color-mute);
+}
+
+.header-action-btn:hover {
+    color: var(--color-ink);
+}
+
+.header-status-pill,
+.header-action-pill,
+.header-toolbar {
+    backdrop-filter: blur(8px);
+}
+
+.header-clock-time {
+    font-variant-numeric: tabular-nums;
+}

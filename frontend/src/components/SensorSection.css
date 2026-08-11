@@ -1,0 +1,23 @@
+.sensor-section {
+  margin-bottom: 2rem;
+}
+
+.sensor-section-header {
+  margin-bottom: 1.25rem;
+}
+
+.sensor-section-eyebrow {
+  color: var(--color-mute);
+}
+
+.sensor-section-title {
+  color: var(--color-ink);
+}
+
+.sensor-section-meta {
+  color: var(--color-mute);
+}
+
+.sensor-section-grid {
+  gap: 1.25rem;
+}

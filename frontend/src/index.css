@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+:root {
+    --color-leaf: #2f6b4f;
+    --color-leaf-light: #eaf4ee;
+    --color-leaf-dark: #1f4a37;
+    --color-clay: #c97b3e;
+    --color-blue: #3e7fc9;
+    --color-azure: #3e7fc9;
+    --color-card: #ffffff;
+    --color-ink: #243033;
+    --color-mute: #6f7882;
+    --color-line: #E3E0D5;
+    --page-bg: #f6f4ee;
+}
+
+
+
+body {
+    background-color: var(--page-bg);
+    color: var(--color-ink);
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+}
+
+.font-display {
+    font-family: "Fraunces", Georgia, serif;
+    letter-spacing: -0.02em;
+}
+
+.font-body {
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.text-leaf {
+    color: var(--color-leaf) !important;
+}
+
+.text-clay {
+    color: var(--color-clay) !important;
+}
+
+.bg-leaf {
+    background-color: var(--color-leaf) !important;
+}
+
+.bg-leaf-light {
+    background-color: var(--color-leaf-light) !important;
+}
+
+.bg-clay {
+    background-color: var(--color-clay) !important;
+}
+
+.bg-blue,
+.bg-azure {
+    background-color: var(--color-blue) !important;
+}
+
+.bg-card {
+    background-color: var(--color-card) !important;
+}
+
+.text-ink {
+    color: var(--color-ink) !important;
+}
+
+.text-mute {
+    color: var(--color-mute) !important;
+}
+
+.text-leaf-dark {
+    color: var(--color-leaf-dark) !important;
+}
+
+.border-line {
+    border-color: var(--color-line) !important;
+}
+
+.num-tick {
+    font-variant-numeric: tabular-nums;
+}
+
+@keyframes pulse-dot {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+}
+
+.pulse-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.range-btn.active {
+    background-color: var(--color-leaf);
+    color: #fff;
+}
+
+.usage-bar {
+    transition: width 0.6s ease;
+}
+
+::selection {
+    background: var(--color-leaf);
+    color: white;
+}
