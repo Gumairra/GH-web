@@ -1,0 +1,19 @@
+{
+  "name": "greenhouse-backend",
+  "version": "1.0.0",
+  "description": "Backend API untuk I-WILL Greenhouse Monitoring (Express + PostgreSQL)",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "mongoose": "^9.9.2",
+    "mqtt": "^5.15.2",
+    "pg": "^8.13.1"
+  }
+}
