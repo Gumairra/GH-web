@@ -1,5 +1,9 @@
 const pool = require("../config/db");
 const { resolveRange } = require("../utils/dateRange");
+const {
+    kirimPerintahAktuator,
+    daftarAktuator,
+} = require("../mqtt/actuatorPublisher");
 
 const NAME_LABEL = {
     pompa_air: "Pompa Air",
@@ -80,4 +84,28 @@ async function logEvent(req, res) {
     }
 }
 
-module.exports = { getUsage, logEvent };
+// POST /api/actuators/:nama/set  body: { nyala: true|false }
+// Mengirim perintah langsung ke ESP32 lewat MQTT.
+// nama: "kipas" | "lampu" | "pompaAir" | "pompaNutrisi"
+// (nama topic MQTT asli di ESP_penerima.ino, beda dengan
+// nama di actuator_log yang dipakai untuk statistik pemakaian)
+async function setActuator(req, res) {
+    const { nama } = req.params;
+    const { nyala } = req.body;
+
+    if (!daftarAktuator.includes(nama)) {
+        return res.status(400).json({
+            message: `Aktuator tidak dikenal. Pilihan: ${daftarAktuator.join(", ")}`,
+        });
+    }
+
+    try {
+        const hasil = await kirimPerintahAktuator(nama, Boolean(nyala));
+        res.json({ message: "Perintah terkirim ke ESP32", ...hasil });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Gagal mengirim perintah ke MQTT" });
+    }
+}
+
+module.exports = { getUsage, logEvent, setActuator };

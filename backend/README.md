@@ -2,6 +2,32 @@
 
 Backend Express + PostgreSQL untuk frontend `GH-web/frontend` (React + Vite).
 
+## 0. Alur data MQTT (ESP32 <-> Backend)
+
+Backend ini otomatis **subscribe** ke topic `greenhouse/sensors` di broker
+`broker.emqx.io` (harus sama persis dengan `ESP_penerima.ino`). Setiap ESP32
+publish data sensor, backend langsung menyimpannya ke tabel
+`monitoring_sensor` — tidak perlu request HTTP manual apapun.
+
+Untuk kontrol aktuator dari web ke ESP32 (menyalakan/mematikan kipas, lampu,
+pompa air, pompa nutrisi), backend **publish** ke topic yang di-subscribe
+ESP32:
+
+```bash
+curl -X POST http://localhost:4000/api/actuators/kipas/set \
+  -H "Content-Type: application/json" \
+  -d '{ "nyala": true }'
+```
+
+`:nama` = `kipas`, `lampu`, `pompaAir`, atau `pompaNutrisi` (persis nama
+topic di `ESP_penerima.ino`). Endpoint ini terpisah dari `/api/actuators/log`
+& `/api/actuators/usage` di bawah, yang dipakai untuk mencatat statistik
+pemakaian (Pompa Air/Lampu LED/Exhaust Fan) di halaman Statistics.
+
+Endpoint `POST /api/sensors` (lihat bagian 5) tetap ada sebagai jalur
+alternatif kalau suatu saat ada perangkat yang kirim data lewat HTTP,
+bukan MQTT.
+
 ## 1. Kenapa ada file migration?
 
 Skema asli `db_greenersfix.sql` cuma punya tabel `monitoring_sensor` dengan
@@ -37,6 +63,7 @@ memastikan API dan koneksi DB hidup.
 | POST   | `/api/sensors`                     | Perangkat IoT (ESP32) mengirim pembacaan baru      |
 | GET    | `/api/actuators/usage?range=...`   | Bagian "Pemakaian Aktuator" di `Statistics.jsx`    |
 | POST   | `/api/actuators/log`               | Sistem kontrol relay mencatat event ON/OFF         |
+| POST   | `/api/actuators/:nama/set`         | Kirim perintah ON/OFF ke ESP32 lewat MQTT (`:nama` = `kipas`\|`lampu`\|`pompaAir`\|`pompaNutrisi`) |
 
 ### Contoh response `GET /api/sensors/latest`
 
