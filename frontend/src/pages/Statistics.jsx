@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Header from "../components/Header";
 import LineChart from "../components/LineChart";
 import { getSensorHistory, getActuatorUsage } from "../services/api";
+import { SensorLiveContext } from "../layouts/SensorLiveContext";
 import "./Statistics.css";
 
 function Statistics() {
@@ -9,6 +10,7 @@ function Statistics() {
     const [history, setHistory] = useState(null);
     const [actuatorUsage, setActuatorUsage] = useState([]);
     const [error, setError] = useState(null);
+    const { revision } = useContext(SensorLiveContext);
 
     useEffect(() => {
         let isMounted = true;
@@ -30,17 +32,10 @@ function Statistics() {
         };
 
         load();
-        // Auto-refresh biar data terbaru dari ESP32 langsung kelihatan
-        // tanpa perlu reload manual. 15 detik dipilih karena endpoint
-        // ini menghitung agregat (AVG per jam/hari), jadi tidak perlu
-        // sesering polling data terbaru (5 detik) di halaman Monitoring.
-        const intervalId = setInterval(load, 15000);
-
         return () => {
             isMounted = false;
-            clearInterval(intervalId);
         };
-    }, [activeRange]);
+    }, [activeRange, revision]);
 
     const summary = history?.summary || {};
 

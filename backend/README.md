@@ -47,9 +47,21 @@ psql -U postgres -d greenersfix -f migrations/001_extend_schema.sql
 ```bash
 cd backend
 npm install
-cp .env.example .env   # sesuaikan kredensial database Anda
+cp .env.example .env   # isi konfigurasi lokal Anda
 npm run dev             # atau: npm start
 ```
+
+### Keamanan konfigurasi
+
+Jangan commit atau push file `.env`, file konfigurasi lokal lain yang berisi
+kredensial, maupun private key/sertifikat ke GitHub. File-file tersebut sudah
+diabaikan oleh `.gitignore` di root repository. Simpan nilai contoh tanpa
+kredensial sungguhan di `.env.example`; setiap developer membuat `.env` lokal
+dari file contoh tersebut.
+
+Jika file rahasia pernah terlanjur di-push, menghapusnya dari commit terbaru
+tidak menghapusnya dari riwayat Git. Segera rotasi password/token yang
+terdampak, lalu bersihkan riwayat repository bila diperlukan.
 
 Server berjalan di `http://localhost:4000`. Cek `GET /api/health` untuk
 memastikan API dan koneksi DB hidup.
@@ -146,3 +158,29 @@ curl -X POST http://localhost:4000/api/sensors \
     "water_level_percent": 62, "water_level_height": 22.8
   }'
 ```
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+dist/
+build/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+.env
+node_modules/
+*.log

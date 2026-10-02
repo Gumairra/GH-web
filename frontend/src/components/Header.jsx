@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { SensorLiveContext } from "../layouts/SensorLiveContext";
 import "./Header.css";
 
 function Header() {
     const location = useLocation();
     const isStatistics = location.pathname === "/statistics";
+    const { isOnline } = useContext(SensorLiveContext);
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
@@ -79,8 +81,10 @@ function Header() {
                 </div>
 
                 <div className="header-status-pill flex items-center gap-2 rounded-full bg-transparent pl-2.5 pr-3.5 py-1.5">
-                    <span className="header-status-dot h-2 w-2 rounded-full bg-leaf pulse-dot"></span>
-                    <span className="text-xs font-semibold text-ink">Perangkat Online</span>
+                    <span className={`header-status-dot h-2 w-2 rounded-full ${isOnline ? "header-status-dot--online pulse-dot" : "header-status-dot--offline"}`}></span>
+                    <span className="text-xs font-semibold text-ink" aria-live="polite">
+                        Perangkat {isOnline ? "Online" : "Offline"}
+                    </span>
                 </div>
 
                 <div className="header-clock hidden text-right sm:block" id="clockContainer">

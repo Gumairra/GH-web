@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Header from "../components/Header";
 import SensorSection from "../components/SensorSection";
 import WaterLevel from "../components/WaterLevel";
 import { getLatestSensor } from "../services/api";
+import { SensorLiveContext } from "../layouts/SensorLiveContext";
 import "./Dashboard.css";
 
 function Dashboard() {
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
+    const { revision } = useContext(SensorLiveContext);
 
     useEffect(() => {
         let isMounted = true;
@@ -33,7 +35,7 @@ function Dashboard() {
             isMounted = false;
             clearInterval(intervalId);
         };
-    }, []);
+    }, [revision]);
 
     return (
         <div className="dashboard-page max-w-7xl mx-auto px-5 sm:px-8 py-8">

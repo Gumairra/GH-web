@@ -1,5 +1,15 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+export function subscribeToSensorEvents({ onStatus, onReading, onError }) {
+    const source = new EventSource(`${BASE_URL}/api/sensors/events`);
+
+    source.addEventListener("status", (event) => onStatus(JSON.parse(event.data)));
+    source.addEventListener("reading", onReading);
+    source.onerror = onError;
+
+    return source;
+}
+
 async function handleResponse(res) {
     if (!res.ok) {
         const body = await res.json().catch(() => ({}));

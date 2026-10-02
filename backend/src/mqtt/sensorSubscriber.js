@@ -1,15 +1,29 @@
 const mqttClient = require("../config/mqttClient");
 const pool = require("../config/db");
+const { EventEmitter } = require("events");
 
 const TOPIC_SENSOR = process.env.MQTT_TOPIC_SENSOR || "greenhouse/sensors";
+const SENSOR_ONLINE_TIMEOUT_MS = 15000;
+const sensorEvents = new EventEmitter();
 
 // Cache di memori supaya GET /api/sensors/latest bisa cepat
 // merespons tanpa menunggu round-trip ke DB (dipakai sebagai
 // fallback opsional oleh controller kalau dibutuhkan nanti).
 let dataSensorTerakhir = null;
+let lastSensorMessageAt = null;
 
 function getDataSensorTerakhir() {
     return dataSensorTerakhir;
+}
+
+function getSensorStatus() {
+    const receivedAt = lastSensorMessageAt ? new Date(lastSensorMessageAt) : null;
+    const online = receivedAt !== null && Date.now() - receivedAt.getTime() <= SENSOR_ONLINE_TIMEOUT_MS;
+
+    return {
+        online,
+        lastMessageAt: receivedAt?.toISOString() ?? null,
+    };
 }
 
 function initSensorSubscriber() {
@@ -54,6 +68,19 @@ function initSensorSubscriber() {
             return;
         }
 
+        const sensorKeys = ["phAir", "suhuUdara", "kelembapan", "tds", "turbidity"];
+        const hasSensorReading = sensorKeys.some((key) => {
+            const value = payload[key];
+            return value !== undefined && value !== null && Number.isFinite(Number(value));
+        });
+
+        if (!hasSensorReading) {
+            console.error("[MQTT] Payload tidak berisi pembacaan sensor yang valid:", messageString);
+            return;
+        }
+
+        lastSensorMessageAt = Date.now();
+
         // Payload dari ESP_penerima.ino:
         // { suhuUdara, kelembapan, phAir, tds, turbidity,
         //   statusTurbidity, teganganTurbidity }
@@ -83,6 +110,7 @@ function initSensorSubscriber() {
                 ppm,
                 created_at: rows[0].created_at,
             };
+            sensorEvents.emit("reading");
 
             console.log(
                 `[MQTT->DB] Data sensor tersimpan (id=${rows[0].id}, ph_air=${ph_air}, suhu_udara=${suhu_udara}, humidity=${humidity})`
@@ -93,4 +121,9 @@ function initSensorSubscriber() {
     });
 }
 
-module.exports = { initSensorSubscriber, getDataSensorTerakhir };
+module.exports = {
+    initSensorSubscriber,
+    getDataSensorTerakhir,
+    getSensorStatus,
+    sensorEvents,
+};

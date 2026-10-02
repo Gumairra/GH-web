@@ -41,3 +41,11 @@
 .header-clock-time {
     font-variant-numeric: tabular-nums;
 }
+
+.header-status-dot--online {
+    background-color: var(--color-leaf);
+}
+
+.header-status-dot--offline {
+    background-color: #dc5247;
+}
