@@ -75,15 +75,23 @@ function initSensorSubscriber() {
                 [esp_name, ph_air, suhu_udara, humidity, tds, ppm]
             );
 
-            // Upsert status ESP
+            // Upsert status ESP (dipisah dari insert sensor supaya kalau
+            // tabel esp_devices bermasalah, data sensor tetap tersimpan)
             if (esp_name) {
-                await pool.query(
-                    `INSERT INTO esp_devices (esp_name, last_seen, is_online)
-                     VALUES ($1, NOW(), TRUE)
-                     ON CONFLICT (esp_name)
-                     DO UPDATE SET last_seen = NOW(), is_online = TRUE`,
-                    [esp_name]
-                );
+                try {
+                    await pool.query(
+                        `INSERT INTO esp_devices (esp_name, last_seen, is_online)
+                         VALUES ($1, NOW(), TRUE)
+                         ON CONFLICT (esp_name)
+                         DO UPDATE SET last_seen = NOW(), is_online = TRUE`,
+                        [esp_name]
+                    );
+                } catch (e) {
+                    console.error(
+                        "[DB] Gagal update status ESP (esp_devices):",
+                        e.message
+                    );
+                }
             }
 
             dataSensorTerakhir = {

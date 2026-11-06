@@ -64,7 +64,10 @@ memastikan API dan koneksi DB hidup.
 | GET    | `/api/sensors/latest`              | `SensorSection.jsx`, `WaterLevel.jsx` (Dashboard)  |
 | GET    | `/api/sensors/history?range=today\|week\|month` | `LineChart.jsx` + kartu ringkasan di `Statistics.jsx` |
 | GET    | `/api/sensors/export?range=today\|week\|month`  | Tombol "Unduh Excel" di `Statistics.jsx` (file .xlsx, 2 sheet: Data Sensor + Pemakaian Aktuator) |
-| POST   | `/api/sensors`                     | Perangkat IoT (ESP32) mengirim pembacaan baru      |
+| GET    | `/api/sensors/average-suhu?esp=ESP_01,ESP_02` | Kartu "Rata-rata Suhu Udara" di `Dashboard.jsx` (tanpa `esp` = semua ESP) |
+| POST   | `/api/sensors`                     | Perangkat IoT (ESP32) mengirim pembacaan baru (sertakan `esp_name`) |
+| GET    | `/api/esp`                         | Daftar ESP terdaftar + `last_seen`/`is_online`     |
+| POST   | `/api/esp`                         | Daftarkan/refresh ESP (`esp_name`, `location`)     |
 | GET    | `/api/actuators/usage?range=...`   | Bagian "Pemakaian Aktuator" di `Statistics.jsx`    |
 | POST   | `/api/actuators/log`               | Sistem kontrol relay mencatat event ON/OFF         |
 | POST   | `/api/actuators/:nama/set`         | Kirim perintah ON/OFF ke ESP32 lewat MQTT (`:nama` = `kipas`\|`lampu`\|`pompaAir`\|`pompaNutrisi`) |

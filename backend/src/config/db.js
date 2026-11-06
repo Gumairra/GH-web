@@ -7,6 +7,11 @@ const pool = new Pool({
     database: process.env.PGDATABASE,
     user: process.env.PGUSER,
     password: process.env.PGPASSWORD,
+    // PGSSL=true dipakai kalau PostgreSQL mengharuskan koneksi SSL
+    ssl:
+        process.env.PGSSL === "true"
+            ? { rejectUnauthorized: false }
+            : false,
 });
 
 pool.on("error", (err) => {
