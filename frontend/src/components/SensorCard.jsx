@@ -7,6 +7,7 @@ function SensorCard({
     status,
     icon,
     sensors,
+    esp_name,
     progress = 0,
 }) {
     return (
@@ -19,6 +20,11 @@ function SensorCard({
                     <p className="sensor-card-sensors text-[11px] font-medium text-[#6f7882]">
                         {sensors}
                     </p>
+                    {esp_name && (
+                        <span className="inline-block rounded-full bg-[#eef5ef] px-2 py-0.5 text-[10px] font-semibold text-[#2f6b4f]">
+                            {esp_name}
+                        </span>
+                    )}
 
                     <div className="flex items-end gap-1">
                         <span className="sensor-card-value font-mono text-[30px] font-semibold leading-none text-[#243033]">

@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import LineChart from "../components/LineChart";
-import { getSensorHistory, getActuatorUsage } from "../services/api";
+import {
+    getSensorHistory,
+    getActuatorUsage,
+    exportSensorExcel,
+} from "../services/api";
 import "./Statistics.css";
 
 function Statistics() {
@@ -9,6 +13,7 @@ function Statistics() {
     const [history, setHistory] = useState(null);
     const [actuatorUsage, setActuatorUsage] = useState([]);
     const [error, setError] = useState(null);
+    const [exporting, setExporting] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -30,17 +35,27 @@ function Statistics() {
         };
 
         load();
-        // Auto-refresh biar data terbaru dari ESP32 langsung kelihatan
-        // tanpa perlu reload manual. 15 detik dipilih karena endpoint
-        // ini menghitung agregat (AVG per jam/hari), jadi tidak perlu
-        // sesering polling data terbaru (5 detik) di halaman Monitoring.
-        const intervalId = setInterval(load, 15000);
+        // Pengambilan data otomatis setiap 3 menit (180.000 ms),
+        // sesuai interval yang diminta agar tidak membebani server.
+        const intervalId = setInterval(load, 3 * 60 * 1000);
 
         return () => {
             isMounted = false;
             clearInterval(intervalId);
         };
     }, [activeRange]);
+
+    const handleExport = async () => {
+        setExporting(true);
+        try {
+            await exportSensorExcel(activeRange);
+            setError(null);
+        } catch (err) {
+            setError(`Gagal mengunduh Excel: ${err.message}`);
+        } finally {
+            setExporting(false);
+        }
+    };
 
     const summary = history?.summary || {};
 
@@ -64,25 +79,40 @@ function Statistics() {
                 <p className="text-sm text-mute">
                     Menampilkan riwayat data sensor dan pemakaian aktuator
                 </p>
-                <div className="statistics-range-group flex items-center gap-1 rounded-full border border-line bg-white/90 p-1 shadow-sm">
-                    {[
-                        { key: "today", label: "Hari Ini" },
-                        { key: "week", label: "7 Hari" },
-                        { key: "month", label: "30 Hari" },
-                    ].map((range) => (
-                        <button
-                            key={range.key}
-                            type="button"
-                            onClick={() => setActiveRange(range.key)}
-                            className={`statistics-range-button text-xs font-medium px-3.5 py-1.5 rounded-full transition-colors ${
-                                activeRange === range.key
-                                    ? "statistics-range-button--active"
-                                    : ""
-                            }`}
-                        >
-                            {range.label}
-                        </button>
-                    ))}
+                <div className="flex items-center gap-3 flex-wrap">
+                    <div className="statistics-range-group flex items-center gap-1 rounded-full border border-line bg-white/90 p-1 shadow-sm">
+                        {[
+                            { key: "today", label: "Hari Ini" },
+                            { key: "week", label: "7 Hari" },
+                            { key: "month", label: "30 Hari" },
+                        ].map((range) => (
+                            <button
+                                key={range.key}
+                                type="button"
+                                onClick={() => setActiveRange(range.key)}
+                                className={`statistics-range-button text-xs font-medium px-3.5 py-1.5 rounded-full transition-colors ${
+                                    activeRange === range.key
+                                        ? "statistics-range-button--active"
+                                        : ""
+                                }`}
+                            >
+                                {range.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleExport}
+                        disabled={exporting}
+                        className="flex items-center gap-2 rounded-full border border-line bg-white/90 px-4 py-1.5 text-xs font-medium text-ink shadow-sm transition-colors hover:bg-[#eef5ef] disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Unduh data sensor & pemakaian aktuator sebagai file Excel"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM10 2a1 1 0 011 1v8.586l2.293-2.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L9 11.586V3a1 1 0 011-1z" />
+                        </svg>
+                        {exporting ? "Menyiapkan..." : "Unduh Excel"}
+                    </button>
                 </div>
             </div>
 

@@ -33,6 +33,7 @@ function SensorSection({ sensors = [] }) {
                         }
                         unit={s.unit}
                         status={s.status}
+                        esp_name={s.esp_name}
                         progress={s.progress}
                     />
                 ))}

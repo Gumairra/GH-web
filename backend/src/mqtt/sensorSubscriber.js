@@ -55,7 +55,7 @@ function initSensorSubscriber() {
         }
 
         // Payload dari ESP_penerima.ino:
-        // { suhuUdara, kelembapan, phAir, tds, turbidity,
+        // { suhuUdara, kelembapan, phAir, tds, turbidity, esp_name,
         //   statusTurbidity, teganganTurbidity }
         // Kolom suhu_air, water_level_percent, water_level_height
         // belum dikirim oleh ESP32 saat ini sehingga disimpan NULL.
@@ -64,18 +64,31 @@ function initSensorSubscriber() {
         const humidity = payload.kelembapan ?? null;
         const tds = payload.tds ?? null;
         const ppm = payload.turbidity ?? null; // "PPM Air" di frontend = estimasi NTU turbidity
+        const esp_name = payload.esp_name ?? null;
 
         try {
             const { rows } = await pool.query(
                 `INSERT INTO monitoring_sensor
-                    (ph_air, suhu_udara, humidity, tds, ppm)
-                 VALUES ($1, $2, $3, $4, $5)
+                    (esp_name, ph_air, suhu_udara, humidity, tds, ppm)
+                 VALUES ($1, $2, $3, $4, $5, $6)
                  RETURNING id, created_at`,
-                [ph_air, suhu_udara, humidity, tds, ppm]
+                [esp_name, ph_air, suhu_udara, humidity, tds, ppm]
             );
+
+            // Upsert status ESP
+            if (esp_name) {
+                await pool.query(
+                    `INSERT INTO esp_devices (esp_name, last_seen, is_online)
+                     VALUES ($1, NOW(), TRUE)
+                     ON CONFLICT (esp_name)
+                     DO UPDATE SET last_seen = NOW(), is_online = TRUE`,
+                    [esp_name]
+                );
+            }
 
             dataSensorTerakhir = {
                 id: rows[0].id,
+                esp_name,
                 ph_air,
                 suhu_udara,
                 humidity,
@@ -85,7 +98,7 @@ function initSensorSubscriber() {
             };
 
             console.log(
-                `[MQTT->DB] Data sensor tersimpan (id=${rows[0].id}, ph_air=${ph_air}, suhu_udara=${suhu_udara}, humidity=${humidity})`
+                `[MQTT->DB] Data sensor tersimpan (id=${rows[0].id}, esp=${esp_name}, ph_air=${ph_air}, suhu_udara=${suhu_udara}, humidity=${humidity})`
             );
         } catch (err) {
             console.error("[DB] Gagal menyimpan data sensor dari MQTT:", err.message);

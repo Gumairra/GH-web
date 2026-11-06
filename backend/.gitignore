@@ -1,0 +1,5 @@
+# Kredensial asli - jangan pernah di-commit
+.env
+
+# Dependensi
+node_modules/

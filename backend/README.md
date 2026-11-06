@@ -47,11 +47,14 @@ psql -U postgres -d greenersfix -f migrations/001_extend_schema.sql
 ```bash
 cd backend
 npm install
-cp .env.example .env   # sesuaikan kredensial database Anda
 npm run dev             # atau: npm start
 ```
 
-Server berjalan di `http://localhost:4000`. Cek `GET /api/health` untuk
+Seluruh kredensial (Server, Database PostgreSQL, dan MQTT) sudah digabung
+dalam **satu file** `backend/.env` — silakan sesuaikan isinya dengan
+lingkungan Anda. File `.env` sengaja di-gitignore karena berisi password.
+
+Server berjalan di `http://localhost:5000`. Cek `GET /api/health` untuk
 memastikan API dan koneksi DB hidup.
 
 ## 3. Daftar Endpoint
@@ -60,6 +63,7 @@ memastikan API dan koneksi DB hidup.
 |--------|------------------------------------|---------------------------------------------------|
 | GET    | `/api/sensors/latest`              | `SensorSection.jsx`, `WaterLevel.jsx` (Dashboard)  |
 | GET    | `/api/sensors/history?range=today\|week\|month` | `LineChart.jsx` + kartu ringkasan di `Statistics.jsx` |
+| GET    | `/api/sensors/export?range=today\|week\|month`  | Tombol "Unduh Excel" di `Statistics.jsx` (file .xlsx, 2 sheet: Data Sensor + Pemakaian Aktuator) |
 | POST   | `/api/sensors`                     | Perangkat IoT (ESP32) mengirim pembacaan baru      |
 | GET    | `/api/actuators/usage?range=...`   | Bagian "Pemakaian Aktuator" di `Statistics.jsx`    |
 | POST   | `/api/actuators/log`               | Sistem kontrol relay mencatat event ON/OFF         |

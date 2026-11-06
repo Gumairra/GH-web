@@ -85,6 +85,27 @@ async function jalankan() {
         `);
         console.log("✅ Index sudah lengkap");
 
+        // 4) Migration 002: tabel esp_devices + kolom esp_name
+        //    (untuk monitoring 5 node ESP-NOW dengan 1 ESP induk)
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS public.esp_devices (
+                id SERIAL PRIMARY KEY,
+                esp_name VARCHAR(50) NOT NULL UNIQUE,
+                location VARCHAR(100),
+                last_seen TIMESTAMP,
+                is_online BOOLEAN DEFAULT FALSE
+            );
+        `);
+        await client.query(`
+            ALTER TABLE public.monitoring_sensor
+                ADD COLUMN IF NOT EXISTS esp_name VARCHAR(50);
+        `);
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_esp_devices_esp_name ON public.esp_devices (esp_name);
+            CREATE INDEX IF NOT EXISTS idx_monitoring_sensor_esp_name ON public.monitoring_sensor (esp_name);
+        `);
+        console.log("✅ Tabel esp_devices & kolom esp_name siap");
+
         console.log("\n🎉 Migration selesai. Silakan restart backend (npm run dev).");
         process.exit(0);
     } catch (err) {
