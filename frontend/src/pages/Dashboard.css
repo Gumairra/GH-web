@@ -1,3 +1,217 @@
 .dashboard-page {
     width: 100%;
 }
+
+/* ---------------------------------------------------------------- */
+/* Kepala halaman                                                    */
+/* ---------------------------------------------------------------- */
+.dashboard-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+}
+
+.dashboard-title {
+    margin-top: 0.25rem;
+    font-size: clamp(1.55rem, 1.2rem + 1.4vw, 2.15rem);
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--color-ink);
+}
+
+.dashboard-sub {
+    margin-top: 0.35rem;
+    max-width: 34rem;
+    font-size: 13px;
+    color: var(--color-mute);
+}
+
+.dashboard-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.dashboard-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-line);
+    background: #fff;
+    padding: 0.5rem 0.95rem;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink);
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(36, 48, 51, 0.05);
+    transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.dashboard-refresh:hover:not(:disabled) {
+    background: var(--color-leaf-light);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(36, 48, 51, 0.09);
+}
+
+.dashboard-refresh:disabled {
+    opacity: 0.65;
+    cursor: progress;
+}
+
+.dashboard-refresh-icon.is-spinning {
+    animation: dashboard-spin 900ms linear infinite;
+}
+
+@keyframes dashboard-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.dashboard-updated {
+    font-size: 11px;
+    color: var(--color-mute);
+}
+
+/* ---------------------------------------------------------------- */
+/* Notifikasi                                                        */
+/* ---------------------------------------------------------------- */
+.dashboard-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid rgba(179, 67, 59, 0.28);
+    border-radius: 14px;
+    background: var(--color-danger-soft);
+    padding: 0.65rem 0.85rem;
+    font-size: 12px;
+    color: #8f332d;
+}
+
+.dashboard-alert p {
+    flex: 1 1 auto;
+}
+
+.dashboard-alert button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 0.1rem;
+    line-height: 0;
+}
+
+.dashboard-alert button:hover {
+    opacity: 1;
+}
+
+/* ---------------------------------------------------------------- */
+/* Strip KPI                                                         */
+/* ---------------------------------------------------------------- */
+.dashboard-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+    .dashboard-kpi-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+    }
+}
+
+.kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.55rem;
+}
+
+.kpi-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+}
+
+.kpi-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 9px;
+    background: var(--color-leaf-light);
+    color: var(--color-leaf-dark);
+    flex-shrink: 0;
+}
+
+.kpi-value {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: clamp(1.35rem, 1.1rem + 0.6vw, 1.6rem);
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--color-ink);
+}
+
+.kpi-value--sm {
+    font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.25rem);
+}
+
+.kpi-unit {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-mute);
+}
+
+.kpi-foot {
+    margin-top: 0.3rem;
+    font-size: 11px;
+    color: var(--color-mute);
+}
+
+/* ---------------------------------------------------------------- */
+/* Toolbar pemilih node                                              */
+/* ---------------------------------------------------------------- */
+.dashboard-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.78);
+    padding: 0.6rem 0.85rem;
+    box-shadow: 0 8px 20px rgba(36, 48, 51, 0.04);
+}
+
+.dashboard-toolbar-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-mute);
+}

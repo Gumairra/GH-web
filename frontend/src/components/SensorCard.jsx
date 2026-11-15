@@ -1,5 +1,14 @@
 import "./SensorCard.css";
 
+// Tentukan nada warna kartu dari label status yang dikirim backend
+function toneFor(status) {
+    if (!status) return "neutral";
+    if (status.startsWith("Normal")) return "success";
+    if (status.startsWith("Rendah") || status.startsWith("Tinggi")) return "warning";
+    if (status.startsWith("Tidak")) return "neutral";
+    return "info";
+}
+
 function SensorCard({
     title,
     value,
@@ -10,44 +19,38 @@ function SensorCard({
     esp_name,
     progress = 0,
 }) {
-    return (
-        <article className="sensor-card flex min-h-[180px] flex-col justify-between px-5 py-5">
-            <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
-                    <p className="sensor-card-title text-[11px] font-semibold uppercase tracking-[0.2em] text-[#6f7882]">
-                        {title}
-                    </p>
-                    <p className="sensor-card-sensors text-[11px] font-medium text-[#6f7882]">
-                        {sensors}
-                    </p>
-                    {esp_name && (
-                        <span className="inline-block rounded-full bg-[#eef5ef] px-2 py-0.5 text-[10px] font-semibold text-[#2f6b4f]">
-                            {esp_name}
-                        </span>
-                    )}
+    const tone = toneFor(status);
+    const width = `${Math.max(6, Math.min(progress, 100))}%`;
 
-                    <div className="flex items-end gap-1">
-                        <span className="sensor-card-value font-mono text-[30px] font-semibold leading-none text-[#243033]">
-                            {value}
-                        </span>
-                        <span className="sensor-card-unit pb-[2px] text-[12px] text-[#6f7882]">{unit}</span>
-                    </div>
+    return (
+        <article className="sensor-card card-surface card-surface--hover">
+            <div className="sensor-card-head">
+                <div className="min-w-0">
+                    <p className="sensor-card-title">{title}</p>
+                    <p className="sensor-card-sensors">
+                        {sensors}
+                        {esp_name ? ` · ${esp_name}` : ""}
+                    </p>
                 </div>
 
-                <div className="sensor-card-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eef5ef] text-[#2f6b4f]">
+                <div className={`sensor-card-icon sensor-card-icon--${tone}`}>
                     {icon}
                 </div>
             </div>
 
-            <div className="mt-4">
-                <div className="h-1.5 overflow-hidden rounded-full bg-[#f1eee6]">
-                    <div
-                        className="h-full rounded-full bg-[#2f6b4f] transition-all duration-500"
-                        style={{ width: `${Math.max(6, Math.min(progress, 100))}%` }}
+            <div className="sensor-card-value-row">
+                <span className="sensor-card-value">{value}</span>
+                <span className="sensor-card-unit">{unit}</span>
+            </div>
+
+            <div className="sensor-card-foot">
+                <div className="sensor-card-bar">
+                    <span
+                        className={`sensor-card-bar-fill sensor-card-bar-fill--${tone}`}
+                        style={{ width }}
                     />
                 </div>
-
-                <p className="sensor-card-status mt-2 text-[11px] font-medium text-[#1f4a37]">{status}</p>
+                <span className={`chip chip--${tone} sensor-card-status`}>{status}</span>
             </div>
         </article>
     );

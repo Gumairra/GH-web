@@ -1,39 +1,73 @@
 import "./WaterLevel.css";
 
-function WaterLevel({
-    percent = 62,
-    height = 22.8,
-    status = "Cukup",
-    }) {
+const MIN_PERCENT = 40;
+
+function toneFor(percent, status) {
+    if (!percent) return "neutral";
+    if (status && status.startsWith("Tidak")) return "neutral";
+    if (percent < 25) return "danger";
+    if (percent < MIN_PERCENT) return "warning";
+    return "success";
+}
+
+function WaterLevel({ percent = 0, height = 0, status = "Cukup" }) {
+    const safePercent = Math.max(0, Math.min(Number(percent) || 0, 100));
+    const tone = toneFor(safePercent, status);
+
     return (
-        <article className="waterlevel-card p-6">
-            <div className="mb-4 flex items-center justify-between">
+        <article className="waterlevel-card card-surface">
+            <div className="waterlevel-head">
                 <div>
-                    <p className="waterlevel-title text-sm font-semibold text-ink">Ketinggian Air Tandon</p>
-                    <p className="waterlevel-caption mt-0.5 text-xs text-mute">Kapasitas tandon air</p>
+                    <p className="waterlevel-title">Ketinggian Air Tandon</p>
+                    <p className="waterlevel-caption">Kapasitas tandon air greenhouse</p>
                 </div>
 
-                <span className="waterlevel-badge rounded-full bg-leaf-light px-2.5 py-1 text-[11px] font-semibold text-leaf-dark">
-                    {status}
-                </span>
+                <span className={`chip chip--${tone}`}>{status}</span>
             </div>
 
-            <div className="flex items-center gap-6">
-                <div className="waterlevel-tank relative h-48 w-24 overflow-hidden rounded-[32px] border-2 border-line bg-white/90 shadow-inner">
+            <div className="waterlevel-body">
+                <div className="waterlevel-tank" role="img" aria-label={`Ketinggian air ${safePercent} persen`}>
                     <div
-                        className="waterlevel-fill absolute bottom-0 left-0 right-0 bg-azure transition-all duration-700"
-                        style={{ height: `${percent}%` }}
-                    />
-
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="waterlevel-percent font-mono text-2xl font-semibold text-ink">{percent}%</span>
+                        className={`waterlevel-fill waterlevel-fill--${tone}`}
+                        style={{ height: `${safePercent}%` }}
+                    >
+                        <span className="waterlevel-wave" />
                     </div>
+
+                    {/* Penanda level minimum */}
+                    <div className="waterlevel-min" style={{ bottom: `${MIN_PERCENT}%` }}>
+                        <span className="waterlevel-min-label">min {MIN_PERCENT}%</span>
+                    </div>
+
+                    <span className="waterlevel-percent">{safePercent}%</span>
                 </div>
 
-                <div>
-                    <p className="waterlevel-label text-[11px] uppercase tracking-[0.2em] text-mute">Ketinggian</p>
-                    <p className="waterlevel-value mt-1 font-mono text-[28px] font-semibold text-ink">{height} cm</p>
-                    <p className="waterlevel-note mt-2 text-xs text-mute">dari kapasitas maksimum</p>
+                <div className="waterlevel-info">
+                    <div>
+                        <p className="waterlevel-label">Ketinggian</p>
+                        <p className="waterlevel-value">
+                            {height === null || height === undefined || Number(height) === 0
+                                ? "—"
+                                : `${height} cm`}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="waterlevel-label">Status level</p>
+                        <p className={`waterlevel-state waterlevel-state--${tone}`}>
+                            {tone === "danger"
+                                ? "Kritis — segera isi tandon"
+                                : tone === "warning"
+                                ? "Di bawah batas aman"
+                                : tone === "neutral"
+                                ? "Menunggu data sensor"
+                                : "Level aman"}
+                        </p>
+                    </div>
+
+                    <p className="waterlevel-note">
+                        Batas minimum aman {MIN_PERCENT}% dari kapasitas maksimum tandon.
+                    </p>
                 </div>
             </div>
         </article>

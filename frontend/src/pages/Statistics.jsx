@@ -1,43 +1,56 @@
-import { useEffect, useState } from "react";
-import Header from "../components/Header";
+import { useCallback, useEffect, useState } from "react";
 import LineChart from "../components/LineChart";
 import {
     getSensorHistory,
     getActuatorUsage,
     exportSensorExcel,
 } from "../services/api";
+import { relativeFrom } from "../utils/time";
 import "./Statistics.css";
+
+const POLL_MS = 3 * 60 * 1000;
+
+const RANGES = [
+    { key: "today", label: "Hari Ini" },
+    { key: "week", label: "7 Hari" },
+    { key: "month", label: "30 Hari" },
+];
 
 function Statistics() {
     const [activeRange, setActiveRange] = useState("today");
     const [history, setHistory] = useState(null);
     const [actuatorUsage, setActuatorUsage] = useState([]);
     const [error, setError] = useState(null);
+    const [errorDismissed, setErrorDismissed] = useState(false);
     const [exporting, setExporting] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [lastUpdated, setLastUpdated] = useState(null);
 
     useEffect(() => {
         let isMounted = true;
 
         const load = () => {
-            Promise.all([
-                getSensorHistory(activeRange),
-                getActuatorUsage(activeRange),
-            ])
+            Promise.all([getSensorHistory(activeRange), getActuatorUsage(activeRange)])
                 .then(([historyRes, usageRes]) => {
                     if (!isMounted) return;
                     setHistory(historyRes.data);
-                    setActuatorUsage(usageRes.data);
+                    setActuatorUsage(usageRes.data || []);
                     setError(null);
+                    setErrorDismissed(false);
+                    setLastUpdated(new Date());
                 })
                 .catch((err) => {
                     if (isMounted) setError(err.message);
+                })
+                .finally(() => {
+                    if (isMounted) setLoading(false);
                 });
         };
 
         load();
         // Pengambilan data otomatis setiap 3 menit (180.000 ms),
         // sesuai interval yang diminta agar tidak membebani server.
-        const intervalId = setInterval(load, 3 * 60 * 1000);
+        const intervalId = setInterval(load, POLL_MS);
 
         return () => {
             isMounted = false;
@@ -45,19 +58,24 @@ function Statistics() {
         };
     }, [activeRange]);
 
-    const handleExport = async () => {
+    const handleExport = useCallback(async () => {
         setExporting(true);
         try {
             await exportSensorExcel(activeRange);
             setError(null);
         } catch (err) {
             setError(`Gagal mengunduh Excel: ${err.message}`);
+            setErrorDismissed(false);
         } finally {
             setExporting(false);
         }
-    };
+    }, [activeRange]);
 
     const summary = history?.summary || {};
+    const labels = history?.labels || [];
+    const hasData = labels.length > 0;
+    const maxUsage = Math.max(1, ...actuatorUsage.map((a) => a.percent || 0));
+    const showError = error && !errorDismissed;
 
     const summaryCards = [
         { label: "Suhu Udara", value: fmt(summary.suhu_udara, "°C") },
@@ -68,251 +86,290 @@ function Statistics() {
         { label: "Ketinggian Air", value: fmt(summary.water_level_percent, "%") },
     ];
 
-    const labels = history?.labels || [];
-    const maxUsage = Math.max(1, ...actuatorUsage.map((a) => a.percent || 0));
-
     return (
-        <div className="statistics-page mx-auto max-w-7xl px-5 py-8 sm:px-8">
-            <Header />
+        <div className="statistics-page mx-auto w-full max-w-7xl px-5 py-8 sm:px-8">
+            <header className="statistics-head">
+                <div>
+                    <p className="statistics-eyebrow">Statistik</p>
+                    <h1 className="font-display statistics-title">Riwayat &amp; Analisis</h1>
+                    <p className="statistics-sub">
+                        Tren pembacaan sensor dan pemakaian aktuator pada rentang terpilih.
+                    </p>
+                </div>
+            </header>
 
-            <div className="statistics-intro flex items-center justify-between flex-wrap gap-3 mb-6">
-                <p className="text-sm text-mute">
-                    Menampilkan riwayat data sensor dan pemakaian aktuator
-                </p>
-                <div className="flex items-center gap-3 flex-wrap">
-                    <div className="statistics-range-group flex items-center gap-1 rounded-full border border-line bg-white/90 p-1 shadow-sm">
-                        {[
-                            { key: "today", label: "Hari Ini" },
-                            { key: "week", label: "7 Hari" },
-                            { key: "month", label: "30 Hari" },
-                        ].map((range) => (
-                            <button
-                                key={range.key}
-                                type="button"
-                                onClick={() => setActiveRange(range.key)}
-                                className={`statistics-range-button text-xs font-medium px-3.5 py-1.5 rounded-full transition-colors ${
-                                    activeRange === range.key
-                                        ? "statistics-range-button--active"
-                                        : ""
-                                }`}
-                            >
-                                {range.label}
-                            </button>
-                        ))}
-                    </div>
+            {/* Toolbar lengket: filter rentang + unduh */}
+            <div className="statistics-toolbar">
+                <div className="statistics-range-group" role="group" aria-label="Rentang waktu">
+                    {RANGES.map((range) => (
+                        <button
+                            key={range.key}
+                            type="button"
+                            onClick={() => {
+                                if (range.key !== activeRange) {
+                                    setLoading(true);
+                                    setActiveRange(range.key);
+                                }
+                            }}
+                            className={`statistics-range-button ${
+                                activeRange === range.key ? "statistics-range-button--active" : ""
+                            }`}
+                            aria-pressed={activeRange === range.key}
+                        >
+                            {range.label}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="statistics-toolbar-right">
+                    <span className="statistics-updated">
+                        Diperbarui <span className="num-tick">{relativeFrom(lastUpdated)}</span>
+                    </span>
 
                     <button
                         type="button"
                         onClick={handleExport}
                         disabled={exporting}
-                        className="flex items-center gap-2 rounded-full border border-line bg-white/90 px-4 py-1.5 text-xs font-medium text-ink shadow-sm transition-colors hover:bg-[#eef5ef] disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="statistics-export"
                         title="Unduh data sensor & pemakaian aktuator sebagai file Excel"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM10 2a1 1 0 011 1v8.586l2.293-2.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L9 11.586V3a1 1 0 011-1z" />
-                        </svg>
-                        {exporting ? "Menyiapkan..." : "Unduh Excel"}
+                        {exporting ? (
+                            <span className="statistics-export-spinner" aria-hidden="true" />
+                        ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <path d="M12 3v12" />
+                                <path d="M7 11l5 5 5-5" />
+                                <path d="M4 20h16" />
+                            </svg>
+                        )}
+                        {exporting ? "Menyiapkan…" : "Unduh Excel"}
                     </button>
                 </div>
             </div>
 
-            {error && (
-                <p className="text-xs text-red-600 mb-4">
-                    Gagal memuat data dari server: {error}
-                </p>
+            {showError && (
+                <div className="statistics-alert animate-fade-up" role="alert">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 8v4" />
+                        <path d="M12 16h.01" />
+                    </svg>
+                    <p>Gagal memuat data dari server: {error}</p>
+                    <button type="button" onClick={() => setErrorDismissed(true)} aria-label="Tutup notifikasi">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                            <path d="M18 6L6 18" />
+                            <path d="M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             )}
 
-            <section id="summaryGrid" className="statistics-summary-grid grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-                {summaryCards.map((card) => (
-                    <div key={card.label} className="statistics-summary-card p-4">
-                        <p className="statistics-summary-label text-[11px] tracking-[0.16em] text-mute uppercase font-semibold">
-                            {card.label}
-                        </p>
-                        <p className="statistics-summary-value mt-2 font-mono text-xl font-semibold text-ink">{card.value}</p>
-                    </div>
-                ))}
+            {/* Ringkasan */}
+            <section className="statistics-summary-grid" aria-label="Ringkasan nilai terakhir">
+                {loading && !history
+                    ? [0, 1, 2, 3, 4, 5].map((i) => (
+                          <div key={`sum-skeleton-${i}`} className="statistics-summary-card statistics-summary-card--skeleton">
+                              <div className="skeleton h-2.5 w-20" />
+                              <div className="skeleton mt-3 h-6 w-24" />
+                          </div>
+                      ))
+                    : summaryCards.map((card) => (
+                          <div key={card.label} className="statistics-summary-card">
+                              <p className="statistics-summary-label">{card.label}</p>
+                              <p className="statistics-summary-value">{card.value}</p>
+                          </div>
+                      ))}
             </section>
 
-            <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                <article className="bg-card border border-line rounded-2xl p-5">
-                    <div className="flex items-center justify-between mb-1">
-                        <p className="text-sm font-medium text-ink">Suhu Udara & Suhu Air</p>
-                        <div className="flex items-center gap-3 text-[11px] text-mute">
-                            <span className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-clay inline-block"></span>
-                                Udara
-                            </span>
-                            <span className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-blue inline-block"></span>
-                                Air
-                            </span>
-                        </div>
-                    </div>
-                    <p className="text-xs text-mute mb-3">Satuan °C</p>
-                    <div className="h-56">
-                        <LineChart
-                            labels={labels}
-                            datasets={[
-                                {
-                                    label: "Udara",
-                                    data: history?.suhu_udara || [],
-                                    borderColor: "#C97B3E",
-                                    backgroundColor: "#C97B3E22",
-                                    borderWidth: 2,
-                                    pointRadius: 0,
-                                    tension: 0.35,
-                                },
-                                {
-                                    label: "Air",
-                                    data: history?.suhu_air || [],
-                                    borderColor: "#3E7FC9",
-                                    backgroundColor: "#3E7FC922",
-                                    borderWidth: 2,
-                                    pointRadius: 0,
-                                    tension: 0.35,
-                                },
-                            ]}
-                        />
-                    </div>
-                </article>
-
-                <article className="bg-card border border-line rounded-2xl p-5">
-                    <div className="flex items-center justify-between mb-1">
-                        <p className="text-sm font-medium text-ink">Kelembapan Udara</p>
-                        <span className="text-[11px] text-mute flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-leaf inline-block"></span>
-                            %RH
-                        </span>
-                    </div>
-                    <p className="text-xs text-mute mb-3">Target ideal 60–80%</p>
-                    <div className="h-56">
-                        <LineChart
-                            labels={labels}
-                            datasets={[
-                                {
-                                    label: "Kelembapan",
-                                    data: history?.humidity || [],
-                                    borderColor: "#2F6B4F",
-                                    backgroundColor: "#2F6B4F22",
-                                    borderWidth: 2,
-                                    pointRadius: 0,
-                                    tension: 0.35,
-                                    fill: true,
-                                },
-                            ]}
-                        />
-                    </div>
-                </article>
-
-                <article className="bg-card border border-line rounded-2xl p-5">
-                    <div className="flex items-center justify-between mb-1">
-                        <p className="text-sm font-medium text-ink">pH Air & TDS</p>
-                        <div className="flex items-center gap-3 text-[11px] text-mute">
-                            <span className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-leaf inline-block"></span>
-                                pH
-                            </span>
-                            <span className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-blue inline-block"></span>
-                                TDS (ppm)
-                            </span>
-                        </div>
-                    </div>
-                    <p className="text-xs text-mute mb-3">Dua sumbu berbeda skala</p>
-                    <div className="h-56">
-                        <LineChart
-                            labels={labels}
-                            datasets={[
-                                {
-                                    label: "pH",
-                                    data: history?.ph_air || [],
-                                    borderColor: "#2F6B4F",
-                                    backgroundColor: "#2F6B4F22",
-                                    borderWidth: 2,
-                                    pointRadius: 0,
-                                    tension: 0.35,
-                                },
-                                {
-                                    label: "TDS",
-                                    data: history?.tds || [],
-                                    borderColor: "#3E7FC9",
-                                    backgroundColor: "#3E7FC922",
-                                    borderWidth: 2,
-                                    pointRadius: 0,
-                                    tension: 0.35,
-                                },
-                            ]}
-                        />
-                    </div>
-                </article>
-
-                <article className="bg-card border border-line rounded-2xl p-5">
-                    <div className="flex items-center justify-between mb-1">
-                        <p className="text-sm font-medium text-ink">Ketinggian Air Tandon</p>
-                        <span className="text-[11px] text-mute flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-blue inline-block"></span>
-                            %
-                        </span>
-                    </div>
-                    <p className="text-xs text-mute mb-3">
-                        Penurunan menandakan konsumsi, lonjakan menandakan pengisian pompa
+            {!loading && !hasData ? (
+                <section className="statistics-empty card-surface">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M3 3v18h18" />
+                        <path d="M7 14l3-4 3 3 4-6" />
+                    </svg>
+                    <p className="font-semibold text-ink">Belum ada data pada rentang ini</p>
+                    <p className="text-xs text-mute">
+                        Coba pilih rentang lain atau tunggu ESP mengirim pembacaan baru.
                     </p>
-                    <div className="h-56">
-                        <LineChart
-                            type="bar"
-                            labels={labels}
-                            datasets={[
-                                {
-                                    label: "Ketinggian Air",
-                                    data: history?.water_level_percent || [],
-                                    backgroundColor: "#3E7FC955",
-                                    borderColor: "#3E7FC9",
-                                    borderWidth: 1,
-                                    borderRadius: 4,
-                                },
-                            ]}
-                        />
-                    </div>
-                </article>
-            </section>
+                </section>
+            ) : (
+                <section className="statistics-chart-grid">
+                    <article className="statistics-chart-card card-surface">
+                        <div className="statistics-chart-head">
+                            <div>
+                                <p className="statistics-chart-title">Suhu Udara &amp; Suhu Air</p>
+                                <p className="statistics-chart-sub">Satuan °C</p>
+                            </div>
+                            <div className="statistics-legend">
+                                <span><i className="statistics-dot" style={{ background: "#c97b3e" }} />Udara</span>
+                                <span><i className="statistics-dot" style={{ background: "#3e7fc9" }} />Air</span>
+                            </div>
+                        </div>
+                        <div className="statistics-chart-body">
+                            <LineChart
+                                labels={labels}
+                                datasets={[
+                                    {
+                                        label: "Udara",
+                                        data: history?.suhu_udara || [],
+                                        borderColor: "#c97b3e",
+                                        backgroundColor: "#c97b3e22",
+                                        borderWidth: 2,
+                                        pointRadius: 0,
+                                        tension: 0.35,
+                                    },
+                                    {
+                                        label: "Air",
+                                        data: history?.suhu_air || [],
+                                        borderColor: "#3e7fc9",
+                                        backgroundColor: "#3e7fc922",
+                                        borderWidth: 2,
+                                        pointRadius: 0,
+                                        tension: 0.35,
+                                    },
+                                ]}
+                            />
+                        </div>
+                    </article>
 
-            <section className="bg-card border border-line rounded-2xl p-6 mb-6">
-                <div className="flex items-center justify-between mb-5">
+                    <article className="statistics-chart-card card-surface">
+                        <div className="statistics-chart-head">
+                            <div>
+                                <p className="statistics-chart-title">Kelembapan Udara</p>
+                                <p className="statistics-chart-sub">Target ideal 60–80 %RH</p>
+                            </div>
+                            <div className="statistics-legend">
+                                <span><i className="statistics-dot" style={{ background: "#2f6b4f" }} />%RH</span>
+                            </div>
+                        </div>
+                        <div className="statistics-chart-body">
+                            <LineChart
+                                labels={labels}
+                                datasets={[
+                                    {
+                                        label: "Kelembapan",
+                                        data: history?.humidity || [],
+                                        borderColor: "#2f6b4f",
+                                        backgroundColor: "#2f6b4f1f",
+                                        borderWidth: 2,
+                                        pointRadius: 0,
+                                        tension: 0.35,
+                                        fill: true,
+                                    },
+                                ]}
+                            />
+                        </div>
+                    </article>
+
+                    <article className="statistics-chart-card card-surface">
+                        <div className="statistics-chart-head">
+                            <div>
+                                <p className="statistics-chart-title">pH Air &amp; TDS</p>
+                                <p className="statistics-chart-sub">Dua sumbu berbeda skala</p>
+                            </div>
+                            <div className="statistics-legend">
+                                <span><i className="statistics-dot" style={{ background: "#2f6b4f" }} />pH</span>
+                                <span><i className="statistics-dot" style={{ background: "#3e7fc9" }} />TDS (ppm)</span>
+                            </div>
+                        </div>
+                        <div className="statistics-chart-body">
+                            <LineChart
+                                labels={labels}
+                                datasets={[
+                                    {
+                                        label: "pH",
+                                        data: history?.ph_air || [],
+                                        borderColor: "#2f6b4f",
+                                        backgroundColor: "#2f6b4f22",
+                                        borderWidth: 2,
+                                        pointRadius: 0,
+                                        tension: 0.35,
+                                    },
+                                    {
+                                        label: "TDS",
+                                        data: history?.tds || [],
+                                        borderColor: "#3e7fc9",
+                                        backgroundColor: "#3e7fc922",
+                                        borderWidth: 2,
+                                        pointRadius: 0,
+                                        tension: 0.35,
+                                    },
+                                ]}
+                            />
+                        </div>
+                    </article>
+
+                    <article className="statistics-chart-card card-surface">
+                        <div className="statistics-chart-head">
+                            <div>
+                                <p className="statistics-chart-title">Ketinggian Air Tandon</p>
+                                <p className="statistics-chart-sub">
+                                    Turun menandakan konsumsi, naik menandakan pengisian
+                                </p>
+                            </div>
+                            <div className="statistics-legend">
+                                <span><i className="statistics-dot" style={{ background: "#3e7fc9" }} />%</span>
+                            </div>
+                        </div>
+                        <div className="statistics-chart-body">
+                            <LineChart
+                                type="bar"
+                                labels={labels}
+                                datasets={[
+                                    {
+                                        label: "Ketinggian Air",
+                                        data: history?.water_level_percent || [],
+                                        backgroundColor: "#3e7fc955",
+                                        borderColor: "#3e7fc9",
+                                        borderWidth: 1,
+                                        borderRadius: 4,
+                                    },
+                                ]}
+                            />
+                        </div>
+                    </article>
+                </section>
+            )}
+
+            {/* Pemakaian aktuator */}
+            <section className="statistics-actuator card-surface">
+                <div className="statistics-chart-head">
                     <div>
-                        <p className="text-sm font-medium text-ink">Pemakaian Aktuator</p>
-                        <p className="text-xs text-mute mt-0.5">
+                        <p className="statistics-chart-title">Pemakaian Aktuator</p>
+                        <p className="statistics-chart-sub">
                             Total durasi aktif dan jumlah penyalaan pada rentang terpilih
                         </p>
                     </div>
                 </div>
-                <div className="space-y-4">
-                    {actuatorUsage.length === 0 && (
-                        <p className="text-sm text-mute">Belum ada data pemakaian aktuator.</p>
-                    )}
 
-                    {actuatorUsage.map((item) => (
-                        <div key={item.name} className="rounded-2xl border border-line bg-white/70 p-4">
-                            <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-medium text-ink">{item.name}</p>
-                                <p className="text-xs text-mute">{item.count}</p>
+                {actuatorUsage.length === 0 ? (
+                    <p className="statistics-actuator-empty">Belum ada data pemakaian aktuator.</p>
+                ) : (
+                    <div className="statistics-actuator-list">
+                        {actuatorUsage.map((item) => (
+                            <div key={item.name} className="statistics-actuator-row">
+                                <div className="statistics-actuator-top">
+                                    <p className="statistics-actuator-name">{item.name}</p>
+                                    <span className="chip chip--neutral">{item.count}×</span>
+                                </div>
+                                <div className="statistics-actuator-bar">
+                                    <span
+                                        className="statistics-actuator-fill usage-bar"
+                                        style={{ width: `${Math.max(4, (item.percent / maxUsage) * 100)}%` }}
+                                    />
+                                </div>
+                                <p className="statistics-actuator-note">Durasi aktif: {item.time}</p>
                             </div>
-                            <div className="h-2.5 rounded-full bg-[#E7E2D8] overflow-hidden">
-                                <div
-                                    className="h-full rounded-full bg-leaf usage-bar"
-                                    style={{ width: `${Math.max(4, (item.percent / maxUsage) * 100)}%` }}
-                                />
-                            </div>
-                            <p className="text-xs text-mute mt-2">Durasi aktif: {item.time}</p>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </section>
         </div>
     );
 }
 
 function fmt(value, unit) {
-    if (value === null || value === undefined) return "-";
+    if (value === null || value === undefined) return "—";
     return `${Number(value)} ${unit}`;
 }
 

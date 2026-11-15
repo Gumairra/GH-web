@@ -1,23 +1,81 @@
 .sensor-section {
-  margin-bottom: 2rem;
+    margin-bottom: 2rem;
 }
 
 .sensor-section-header {
-  margin-bottom: 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .sensor-section-eyebrow {
-  color: var(--color-mute);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-mute);
 }
 
 .sensor-section-title {
-  color: var(--color-ink);
+    margin-top: 0.2rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-ink);
 }
 
 .sensor-section-meta {
-  color: var(--color-mute);
+    font-size: 11px;
+    color: var(--color-mute);
 }
 
 .sensor-section-grid {
-  gap: 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .sensor-section-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .sensor-section-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    .sensor-section-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+/* Kartu skeleton saat memuat */
+.sensor-skeleton {
+    min-height: 180px;
+    border: 1px solid var(--color-line);
+    border-radius: 20px;
+    background: #fff;
+    padding: 1.1rem 1.15rem;
+    box-shadow: var(--shadow-card);
+}
+
+/* Keadaan kosong */
+.sensor-empty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px dashed var(--color-line);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 2.25rem 1.5rem;
+    text-align: center;
+    color: var(--color-mute);
 }

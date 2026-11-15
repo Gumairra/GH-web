@@ -111,13 +111,62 @@ Mapping ke kolom DB: `suhuUdara→suhu_udara`, `kelembapan→humidity`,
 
 - `src/services/api.js` — semua pemanggilan API (`BASE_URL` dari `VITE_API_URL`,
   default `http://localhost:5000`).
-- `src/pages/Dashboard.jsx` — polling tiap **3 menit** (`3 * 60 * 1000`),
-  dropdown ESP, kartu rata-rata suhu.
-- `src/pages/Statistics.jsx` — polling tiap **3 menit**, filter range,
-  tombol **Unduh Excel**.
+- `src/layouts/MainLayout.jsx` — shell aplikasi: `Topbar` + `<main>` + footer +
+  `ObjectDetectionDrawer` (drawer hanya di-mount saat dibuka).
+- `src/components/Topbar.jsx` — satu-satunya navigasi (Monitoring, Statistik,
+  Object Detection), pill status ESP online, jam, menu mobile.
+- `src/components/ObjectDetectionDrawer.jsx` — panel deteksi objek real-time
+  (stream MJPEG + metadata WebSocket). Lihat bagian di bawah.
+- `src/pages/Dashboard.jsx` — polling tiap **3 menit**, strip KPI (status
+  greenhouse, rata-rata suhu, ESP online, pembacaan terakhir), skeleton saat
+  memuat, banner error yang bisa ditutup, tombol **Perbarui**, chip data basi
+  (> 15 menit), dropdown ESP.
+- `src/pages/Statistics.jsx` — polling tiap **3 menit**, toolbar sticky
+  (filter range + **Unduh Excel** dengan status loading), skeleton, empty state,
+  kartu ringkasan, dan bar pemakaian aktuator.
 - `src/components/EspSelector.jsx` — daftar ESP dari `/api/esp`, fallback statis.
-- `src/components/AverageTemperature.jsx` — menampilkan rata-rata dari API.
-- `src/components/SensorCard.jsx` — badge nama ESP.
+- `src/components/SensorSection.jsx` — grid kartu sensor + ikon per sensor,
+  skeleton, dan empty state.
+- `src/components/SensorCard.jsx` — kartu sensor dengan chip status berwarna
+  (hijau normal, kuning di luar ambang, abu-abu tanpa data).
+- `src/components/WaterLevel.jsx` — tangki air dengan penanda level minimum 40%.
+- `src/components/LineChart.jsx` — Chart.js dengan tooltip/grid bertema.
+- `src/utils/time.js` — `relativeFrom`, `ageMs`, `isOlderThan`, `isWithin`.
+- `src/index.css` — token warna/tipografi, `.card-surface`, `.kpi-card`,
+  `.chip--*`, `.skeleton`, `focus-visible`, dan `prefers-reduced-motion`.
+- Font `Fraunces` (display) + `Inter` (body) dimuat dari Google Fonts di
+  `frontend/index.html`.
+
+## Object Detection (server Python di laptop)
+
+Frontend hanya mengonsumsi dua endpoint dari server Python (belum bagian dari
+backend Express):
+
+| Endpoint | Keterangan |
+|---|---|
+| `GET {DETECTION_URL}/video_feed` | stream MJPEG untuk `<img src>` |
+| `WS {DETECTION_URL}/ws/detections` | metadata JSON (opsional) |
+
+Contoh payload WebSocket:
+
+```json
+{ "fps": 12, "objects": [
+  { "label": "daun", "confidence": 0.91, "box": [0.12, 0.20, 0.30, 0.42] }
+] }
+```
+
+`box` memakai koordinat ternormalisasi 0–1 (`x, y, w, h`); nilai > 1.5 diabaikan.
+Konfigurasi lewat env frontend (opsional, ada default):
+
+```
+VITE_DETECTION_URL=http://localhost:8000
+VITE_DETECTION_STREAM_URL=http://localhost:8000/video_feed
+VITE_DETECTION_WS_URL=ws://localhost:8000/ws/detections
+```
+
+Bila server belum jalan, drawer menampilkan status **Terputus**, URL yang
+dipakai, dan tombol **Coba lagi** (tidak membuat halaman error).
+
 
 ## Konvensi Kode
 
@@ -129,6 +178,21 @@ Mapping ke kolom DB: `suhuUdara→suhu_udara`, `kelembapan→humidity`,
 
 ## Riwayat Perubahan Penting
 
+- 2026-11-15: Modernisasi UI Fase 1: `index.html` (title, meta, Google Fonts),
+  token desain di `index.css`, `Topbar` sticky sebagai satu-satunya navigasi,
+  `MainLayout` menjadi app shell + footer.
+- 2026-11-15: Panel **Object Detection** di navbar (`ObjectDetectionDrawer`)
+  dengan stream MJPEG + WebSocket, status live/offline, dan konfigurasi env
+  `VITE_DETECTION_URL` / `VITE_DETECTION_STREAM_URL` / `VITE_DETECTION_WS_URL`.
+- 2026-11-15: Dashboard: strip KPI, skeleton, banner error, tombol perbarui,
+  chip data basi, kartu sensor berikon + chip status, tangki air dengan penanda
+  level minimum 40%.
+- 2026-11-15: Statistik: toolbar sticky, skeleton/empty state, kartu ringkasan
+  baru, bar pemakaian aktuator, chart bertema.
+- 2026-11-15: Bersih-bersih: hapus `App.css`, `Header.jsx`, `Header.css`,
+  `AverageTemperature.jsx`, `ActuatorCard.jsx`, `pages/Stats.jsx`,
+  `pages/GreenhouseDetail.jsx`. `npm run lint` bersih (1 warning lama di
+  `EspSelector`), `npm run build` sukses.
 - 2026-11-06: Perbaikan error: route `/api/sensors/average-suhu` didaftarkan
   di `sensor.routes.js` (sebelumnya hanya ada di `/api/esp/average-suhu`
   sehingga frontend mendapat 404).
@@ -144,5 +208,5 @@ Mapping ke kolom DB: `suhuUdara→suhu_udara`, `kelembapan→humidity`,
 1. Perbarui file ini (`AGENTS.md`) bila ada endpoint, env, atau alur baru.
 2. Jalankan `npm run migrate` bila mengubah skema database.
 3. Uji `GET /api/health` dan endpoint yang diubah.
-4. Untuk frontend: `npm run build` harus sukses.
+4. Untuk frontend: `npm run build` dan `npm run lint` harus sukses.
 5. Pastikan `.env` tidak ikut ter-commit.

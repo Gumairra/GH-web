@@ -1,44 +1,181 @@
 .waterlevel-card {
-    border: 1px solid var(--color-line);
-    border-radius: 28px;
-    background: var(--color-card);
-    box-shadow: 0 12px 30px rgba(36, 48, 51, 0.06);
+    padding: 1.25rem 1.35rem 1.4rem;
+}
+
+.waterlevel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.1rem;
 }
 
 .waterlevel-title {
+    font-size: 13px;
+    font-weight: 600;
     color: var(--color-ink);
 }
 
 .waterlevel-caption {
+    margin-top: 0.15rem;
+    font-size: 11px;
     color: var(--color-mute);
 }
 
-.waterlevel-badge {
-    background-color: var(--color-leaf-light);
-    color: var(--color-leaf-dark);
+.waterlevel-body {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
+/* ---------------------------------------------------------------- */
+/* Tangki                                                            */
+/* ---------------------------------------------------------------- */
 .waterlevel-tank {
-    border-color: var(--color-line);
-    background: rgba(255, 255, 255, 0.9);
+    position: relative;
+    height: 188px;
+    width: 96px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid var(--color-line);
+    border-radius: 30px;
+    background: linear-gradient(180deg, #ffffff 0%, #f7f5ee 100%);
+    box-shadow: inset 0 6px 14px rgba(36, 48, 51, 0.07);
 }
 
 .waterlevel-fill {
-    background-color: var(--color-azure);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    background: linear-gradient(180deg, #63a8e0 0%, #3e7fc9 100%);
+    transition: height 700ms cubic-bezier(0.33, 1, 0.68, 1), background 300ms ease;
+}
+
+.waterlevel-fill--warning {
+    background: linear-gradient(180deg, #e6b273 0%, #c98a34 100%);
+}
+
+.waterlevel-fill--danger {
+    background: linear-gradient(180deg, #d97b73 0%, #b3433b 100%);
+}
+
+.waterlevel-fill--neutral {
+    background: linear-gradient(180deg, #cfc9bb 0%, #b8b1a1 100%);
+}
+
+/* Riak air tipis di permukaan */
+.waterlevel-wave {
+    position: absolute;
+    top: -4px;
+    left: -50%;
+    width: 200%;
+    height: 8px;
+    background: radial-gradient(circle at 50% 0, rgba(255, 255, 255, 0.55), transparent 70%);
+    animation: waterlevel-wave 3.6s ease-in-out infinite;
+}
+
+@keyframes waterlevel-wave {
+    0%, 100% { transform: translateX(-4%); }
+    50% { transform: translateX(4%); }
+}
+
+/* Garis level minimum */
+.waterlevel-min {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0;
+    border-top: 1.5px dashed rgba(179, 67, 59, 0.65);
+}
+
+.waterlevel-min-label {
+    position: absolute;
+    right: 6px;
+    top: -14px;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #a2443d;
+    background: rgba(255, 255, 255, 0.82);
+    border-radius: 4px;
+    padding: 0 3px;
 }
 
 .waterlevel-percent {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 21px;
+    font-weight: 700;
     color: var(--color-ink);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------- */
+/* Info                                                              */
+/* ---------------------------------------------------------------- */
+.waterlevel-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
 }
 
 .waterlevel-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     color: var(--color-mute);
 }
 
 .waterlevel-value {
+    margin-top: 0.15rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.1;
     color: var(--color-ink);
 }
 
-.waterlevel-note {
+.waterlevel-state {
+    margin-top: 0.15rem;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-leaf-dark);
+}
+
+.waterlevel-state--warning {
+    color: var(--color-warning);
+}
+
+.waterlevel-state--danger {
+    color: var(--color-danger);
+}
+
+.waterlevel-state--neutral {
     color: var(--color-mute);
+}
+
+.waterlevel-note {
+    max-width: 22rem;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--color-mute);
+}
+
+@media (max-width: 420px) {
+    .waterlevel-body {
+        gap: 1rem;
+    }
+
+    .waterlevel-tank {
+        height: 168px;
+        width: 84px;
+    }
 }
