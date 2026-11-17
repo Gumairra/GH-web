@@ -114,9 +114,11 @@ Mapping ke kolom DB: `suhuUdara→suhu_udara`, `kelembapan→humidity`,
 - `src/layouts/MainLayout.jsx` — shell aplikasi: `Topbar` + `<main>` + footer +
   `ObjectDetectionDrawer` (drawer hanya di-mount saat dibuka).
 - `src/components/Topbar.jsx` — satu-satunya navigasi (Monitoring, Statistik,
-  Object Detection), pill status ESP online, jam, menu mobile.
+  Object Detection), status ESP online berbasis teks (tanpa badge LIVE palsu),
+  jam, dan menu mobile.
 - `src/components/ObjectDetectionDrawer.jsx` — panel deteksi objek real-time
-  (stream MJPEG + metadata WebSocket). Lihat bagian di bawah.
+  (stream MJPEG + metadata WebSocket). Status live/offline hanya ditampilkan
+  di drawer berdasarkan koneksi sebenarnya. Lihat bagian di bawah.
 - `src/pages/Dashboard.jsx` — polling tiap **3 menit**, strip KPI (status
   greenhouse, rata-rata suhu, ESP online, pembacaan terakhir), skeleton saat
   memuat, banner error yang bisa ditutup, tombol **Perbarui**, chip data basi
@@ -125,15 +127,16 @@ Mapping ke kolom DB: `suhuUdara→suhu_udara`, `kelembapan→humidity`,
   (filter range + **Unduh Excel** dengan status loading), skeleton, empty state,
   kartu ringkasan, dan bar pemakaian aktuator.
 - `src/components/EspSelector.jsx` — daftar ESP dari `/api/esp`, fallback statis.
-- `src/components/SensorSection.jsx` — grid kartu sensor + ikon per sensor,
-  skeleton, dan empty state.
-- `src/components/SensorCard.jsx` — kartu sensor dengan chip status berwarna
+- `src/components/SensorSection.jsx` — grid kartu sensor responsif (`auto-fit`),
+  ikon per sensor, skeleton, dan empty state.
+- `src/components/SensorCard.jsx` — kartu sensor flat dengan chip status berwarna
   (hijau normal, kuning di luar ambang, abu-abu tanpa data).
 - `src/components/WaterLevel.jsx` — tangki air dengan penanda level minimum 40%.
 - `src/components/LineChart.jsx` — Chart.js dengan tooltip/grid bertema.
 - `src/utils/time.js` — `relativeFrom`, `ageMs`, `isOlderThan`, `isWithin`.
-- `src/index.css` — token warna/tipografi, `.card-surface`, `.kpi-card`,
-  `.chip--*`, `.skeleton`, `focus-visible`, dan `prefers-reduced-motion`.
+- `src/index.css` — token warna/tipografi, `.card-surface`, `.chip--*`,
+  `.skeleton`, `focus-visible`, dan `prefers-reduced-motion`. Style khusus
+  dashboard (`.kpi-card`) berada di `src/pages/Dashboard.css`.
 - Font `Fraunces` (display) + `Inter` (body) dimuat dari Google Fonts di
   `frontend/index.html`.
 
@@ -178,6 +181,9 @@ dipakai, dan tombol **Coba lagi** (tidak membuat halaman error).
 
 ## Riwayat Perubahan Penting
 
+- 2026-11-17: Pembersihan UI "anti AI-slop": menghapus badge LIVE palsu & dot berdenyut di navbar, menghapus shimmer/gradient hover, menghapus dua tombol Object Detection yang duplikat di desktop, menghapus ~120 baris CSS mati (`.bento-card*`, `.dashboard-bento-grid`, `.kpi-sparkline`, `.water-level-section`), menyatukan `.kpi-card` (sebelumnya dobel di `index.css` + `Dashboard.css`), mengganti Bento `nth-child` dengan grid `auto-fit`, menghapus latar blob radial, dan mengganti label uppercase ber-tracking dengan label normal. Warna grafik kini dibaca dari token CSS; konfigurasi env server deteksi dipindah ke `<details>`.
+- 2026-11-16: Modernisasi UI Dashboard (Bento Grid): Menerapkan layout Bento Box pada `SensorSection` (2 kartu parameter utama di baris atas dengan lebar lebih besar, dan 3 kartu parameter pendukung di baris bawah) serta memperhalus permukaan `SensorCard` dengan gradien halus dan efek *lift* saat hover.
+- 2026-11-16: Modernisasi UI Navbar: Mengubah "Object Detection" di Navbar menjadi "Vision Hub LIVE" dengan indikator deteksi real-time (dot berdenyut, badge live, dan efek hover glow). Menambahkan gaya glassmorphism yang lebih dalam pada `Topbar`.
 - 2026-11-15: Modernisasi UI Fase 1: `index.html` (title, meta, Google Fonts),
   token desain di `index.css`, `Topbar` sticky sebagai satu-satunya navigasi,
   `MainLayout` menjadi app shell + footer.

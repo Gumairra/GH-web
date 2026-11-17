@@ -107,7 +107,6 @@ function Dashboard() {
             {/* Kepala halaman */}
             <header className="dashboard-head">
                 <div>
-                    <p className="dashboard-eyebrow">Monitoring</p>
                     <h1 className="font-display dashboard-title">Kondisi Greenhouse</h1>
                     <p className="dashboard-sub">
                         Pemantauan suhu, kelembapan, pH, dan nutrisi air secara langsung.

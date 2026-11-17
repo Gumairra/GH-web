@@ -45,10 +45,7 @@ function SensorSection({ sensors = [], loading = false, updatedAt = null }) {
     return (
         <section className="sensor-section mb-8">
             <div className="sensor-section-header">
-                <div>
-                    <p className="sensor-section-eyebrow">Kondisi Lingkungan</p>
-                    <h2 className="font-display sensor-section-title">Data sensor greenhouse</h2>
-                </div>
+                <h2 className="font-display sensor-section-title">Data sensor greenhouse</h2>
                 <p className="sensor-section-meta">
                     {loading
                         ? "Memuat data sensor…"

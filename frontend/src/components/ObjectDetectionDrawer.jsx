@@ -155,14 +155,9 @@ function ObjectDetectionDrawer({ open, onClose }) {
 
             <aside className="detection-panel" ref={panelRef}>
                 <header className="detection-header">
-                    <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-mute">
-                            Computer Vision
-                        </p>
-                        <h2 className="font-display text-xl font-semibold text-ink">
-                            Object Detection
-                        </h2>
-                    </div>
+                    <h2 className="font-display text-xl font-semibold text-ink">
+                        Object Detection
+                    </h2>
                     <div className="flex items-center gap-2">
                         <span className={`chip ${statusMeta.chip}`}>
                             <span className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -277,7 +272,7 @@ function ObjectDetectionDrawer({ open, onClose }) {
                     </div>
 
                     <div>
-                        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-mute">
+                        <p className="mb-2 text-[11px] font-semibold text-ink">
                             Terdeteksi
                         </p>
                         {objects.length === 0 ? (
@@ -299,21 +294,23 @@ function ObjectDetectionDrawer({ open, onClose }) {
                         )}
                     </div>
 
-                    <div className="detection-help">
-                        <p className="font-semibold text-ink">Konfigurasi server Python</p>
-                        <p>
-                            Stream MJPEG: <code>{STREAM_URL}</code>
-                        </p>
-                        <p>
-                            Metadata WebSocket: <code>{WS_URL}</code>
-                        </p>
-                        <p className="text-mute">
-                            Atur lewat <code>VITE_DETECTION_URL</code> /{" "}
-                            <code>VITE_DETECTION_STREAM_URL</code> /{" "}
-                            <code>VITE_DETECTION_WS_URL</code> di <code>frontend/.env</code>,
-                            lalu restart <code>npm run dev</code>.
-                        </p>
-                    </div>
+                    <details className="detection-help">
+                        <summary>Konfigurasi server Python</summary>
+                        <div className="detection-help-body">
+                            <p>
+                                Stream MJPEG: <code>{STREAM_URL}</code>
+                            </p>
+                            <p>
+                                Metadata WebSocket: <code>{WS_URL}</code>
+                            </p>
+                            <p className="text-mute">
+                                Atur lewat <code>VITE_DETECTION_URL</code> /{" "}
+                                <code>VITE_DETECTION_STREAM_URL</code> /{" "}
+                                <code>VITE_DETECTION_WS_URL</code> di <code>frontend/.env</code>,
+                                lalu restart <code>npm run dev</code>.
+                            </p>
+                        </div>
+                    </details>
                 </div>
             </aside>
         </div>

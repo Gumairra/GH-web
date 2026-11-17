@@ -83,7 +83,7 @@ function Topbar({ onOpenDetection }) {
             <div className="topbar-inner mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-5 sm:px-8">
                 {/* Brand */}
                 <NavLink to="/" className="topbar-brand flex items-center gap-2.5">
-                    <span className="topbar-logo flex h-9 w-9 items-center justify-center rounded-xl">
+                    <span className="topbar-logo flex h-9 w-9 items-center justify-center">
                         <svg
                             width="18"
                             height="18"
@@ -101,12 +101,10 @@ function Topbar({ onOpenDetection }) {
                         </svg>
                     </span>
                     <span className="hidden leading-tight sm:block">
-                        <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-mute">
-                            I-WILL · Greenhouse
-                        </span>
                         <span className="font-display block text-[15px] font-semibold text-ink">
-                            Smart Monitoring
+                            I-WILL Greenhouse
                         </span>
+                        <span className="block text-[11px] text-mute">Smart monitoring</span>
                     </span>
                 </NavLink>
 
@@ -118,8 +116,11 @@ function Topbar({ onOpenDetection }) {
                     <NavLink to="/statistics" className={navLinkClass}>
                         Statistik
                     </NavLink>
-                    <button type="button" onClick={handleDetection} className="topbar-link topbar-link--detect">
-                        <span className="topbar-detect-dot" />
+                    <button type="button" onClick={handleDetection} className="topbar-link topbar-link--action">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M23 7l-7 5 7 5V7z" />
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                        </svg>
                         Object Detection
                     </button>
                 </nav>
@@ -129,7 +130,7 @@ function Topbar({ onOpenDetection }) {
                     <div className="topbar-status hidden items-center gap-2 sm:flex" title="Status perangkat ESP">
                         <span
                             className={`h-2 w-2 rounded-full ${
-                                deviceState.apiOnline ? "bg-leaf pulse-dot" : "bg-[#b3433b]"
+                                deviceState.apiOnline ? "bg-leaf" : "bg-danger"
                             }`}
                         />
                         <span className="text-[11px] font-semibold text-ink">
@@ -148,20 +149,21 @@ function Topbar({ onOpenDetection }) {
 
                     <button
                         type="button"
-                        className="topbar-detect-btn hidden items-center gap-2 rounded-full px-3.5 py-2 text-[11px] font-semibold sm:flex"
+                        className="topbar-icon-btn lg:hidden"
                         onClick={handleDetection}
+                        title="Buka object detection"
+                        aria-label="Buka object detection"
                     >
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                             <path d="M23 7l-7 5 7 5V7z" />
                             <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                         </svg>
-                        Deteksi
                     </button>
 
                     {/* Hamburger mobile */}
                     <button
                         type="button"
-                        className="topbar-burger flex h-9 w-9 items-center justify-center rounded-xl lg:hidden"
+                        className="topbar-burger lg:hidden"
                         aria-label="Buka menu navigasi"
                         aria-expanded={menuOpen}
                         onClick={() => setMenuOpen((v) => !v)}
@@ -193,8 +195,11 @@ function Topbar({ onOpenDetection }) {
                     <NavLink to="/statistics" className={navLinkClass} onClick={() => setMenuOpen(false)}>
                         Statistik
                     </NavLink>
-                    <button type="button" onClick={handleDetection} className="topbar-link topbar-link--detect justify-start">
-                        <span className="topbar-detect-dot" />
+                    <button type="button" onClick={handleDetection} className="topbar-link justify-start">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M23 7l-7 5 7 5V7z" />
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                        </svg>
                         Object Detection
                     </button>
                     <div className="mt-2 flex items-center justify-between border-t border-line pt-2 text-[11px] text-mute">

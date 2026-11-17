@@ -23,7 +23,7 @@ function SensorCard({
     const width = `${Math.max(6, Math.min(progress, 100))}%`;
 
     return (
-        <article className="sensor-card card-surface card-surface--hover">
+        <article className="sensor-card">
             <div className="sensor-card-head">
                 <div className="min-w-0">
                     <p className="sensor-card-title">{title}</p>

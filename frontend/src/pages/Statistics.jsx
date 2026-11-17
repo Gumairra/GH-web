@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import LineChart from "../components/LineChart";
 import {
     getSensorHistory,
@@ -16,6 +16,25 @@ const RANGES = [
     { key: "month", label: "30 Hari" },
 ];
 
+// Ambil warna grafik dari design token agar tidak ada hex liar di JSX.
+function readToken(name, fallback) {
+    if (typeof window === "undefined") return fallback;
+    const value = getComputedStyle(document.documentElement)
+        .getPropertyValue(name)
+        .trim();
+    return value || fallback;
+}
+
+function readChartColors() {
+    return {
+        clay: readToken("--color-clay", "#c97b3e"),
+        blue: readToken("--color-blue", "#3e7fc9"),
+        leaf: readToken("--color-leaf", "#2f6b4f"),
+    };
+}
+
+const withAlpha = (hex, suffix) => `${hex}${suffix}`;
+
 function Statistics() {
     const [activeRange, setActiveRange] = useState("today");
     const [history, setHistory] = useState(null);
@@ -25,6 +44,7 @@ function Statistics() {
     const [exporting, setExporting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState(null);
+    const colors = useMemo(() => readChartColors(), []);
 
     useEffect(() => {
         let isMounted = true;
@@ -90,7 +110,6 @@ function Statistics() {
         <div className="statistics-page mx-auto w-full max-w-7xl px-5 py-8 sm:px-8">
             <header className="statistics-head">
                 <div>
-                    <p className="statistics-eyebrow">Statistik</p>
                     <h1 className="font-display statistics-title">Riwayat &amp; Analisis</h1>
                     <p className="statistics-sub">
                         Tren pembacaan sensor dan pemakaian aktuator pada rentang terpilih.
@@ -201,8 +220,8 @@ function Statistics() {
                                 <p className="statistics-chart-sub">Satuan °C</p>
                             </div>
                             <div className="statistics-legend">
-                                <span><i className="statistics-dot" style={{ background: "#c97b3e" }} />Udara</span>
-                                <span><i className="statistics-dot" style={{ background: "#3e7fc9" }} />Air</span>
+                                <span><i className="statistics-dot" style={{ background: colors.clay }} />Udara</span>
+                                <span><i className="statistics-dot" style={{ background: colors.blue }} />Air</span>
                             </div>
                         </div>
                         <div className="statistics-chart-body">
@@ -212,8 +231,8 @@ function Statistics() {
                                     {
                                         label: "Udara",
                                         data: history?.suhu_udara || [],
-                                        borderColor: "#c97b3e",
-                                        backgroundColor: "#c97b3e22",
+                                        borderColor: colors.clay,
+                                        backgroundColor: withAlpha(colors.clay, "22"),
                                         borderWidth: 2,
                                         pointRadius: 0,
                                         tension: 0.35,
@@ -221,8 +240,8 @@ function Statistics() {
                                     {
                                         label: "Air",
                                         data: history?.suhu_air || [],
-                                        borderColor: "#3e7fc9",
-                                        backgroundColor: "#3e7fc922",
+                                        borderColor: colors.blue,
+                                        backgroundColor: withAlpha(colors.blue, "22"),
                                         borderWidth: 2,
                                         pointRadius: 0,
                                         tension: 0.35,
@@ -239,7 +258,7 @@ function Statistics() {
                                 <p className="statistics-chart-sub">Target ideal 60–80 %RH</p>
                             </div>
                             <div className="statistics-legend">
-                                <span><i className="statistics-dot" style={{ background: "#2f6b4f" }} />%RH</span>
+                                <span><i className="statistics-dot" style={{ background: colors.leaf }} />%RH</span>
                             </div>
                         </div>
                         <div className="statistics-chart-body">
@@ -249,8 +268,8 @@ function Statistics() {
                                     {
                                         label: "Kelembapan",
                                         data: history?.humidity || [],
-                                        borderColor: "#2f6b4f",
-                                        backgroundColor: "#2f6b4f1f",
+                                        borderColor: colors.leaf,
+                                        backgroundColor: withAlpha(colors.leaf, "1f"),
                                         borderWidth: 2,
                                         pointRadius: 0,
                                         tension: 0.35,
@@ -268,8 +287,8 @@ function Statistics() {
                                 <p className="statistics-chart-sub">Dua sumbu berbeda skala</p>
                             </div>
                             <div className="statistics-legend">
-                                <span><i className="statistics-dot" style={{ background: "#2f6b4f" }} />pH</span>
-                                <span><i className="statistics-dot" style={{ background: "#3e7fc9" }} />TDS (ppm)</span>
+                                <span><i className="statistics-dot" style={{ background: colors.leaf }} />pH</span>
+                                <span><i className="statistics-dot" style={{ background: colors.blue }} />TDS (ppm)</span>
                             </div>
                         </div>
                         <div className="statistics-chart-body">
@@ -279,8 +298,8 @@ function Statistics() {
                                     {
                                         label: "pH",
                                         data: history?.ph_air || [],
-                                        borderColor: "#2f6b4f",
-                                        backgroundColor: "#2f6b4f22",
+                                        borderColor: colors.leaf,
+                                        backgroundColor: withAlpha(colors.leaf, "22"),
                                         borderWidth: 2,
                                         pointRadius: 0,
                                         tension: 0.35,
@@ -288,8 +307,8 @@ function Statistics() {
                                     {
                                         label: "TDS",
                                         data: history?.tds || [],
-                                        borderColor: "#3e7fc9",
-                                        backgroundColor: "#3e7fc922",
+                                        borderColor: colors.blue,
+                                        backgroundColor: withAlpha(colors.blue, "22"),
                                         borderWidth: 2,
                                         pointRadius: 0,
                                         tension: 0.35,
@@ -308,7 +327,7 @@ function Statistics() {
                                 </p>
                             </div>
                             <div className="statistics-legend">
-                                <span><i className="statistics-dot" style={{ background: "#3e7fc9" }} />%</span>
+                                <span><i className="statistics-dot" style={{ background: colors.blue }} />%</span>
                             </div>
                         </div>
                         <div className="statistics-chart-body">
@@ -319,8 +338,8 @@ function Statistics() {
                                     {
                                         label: "Ketinggian Air",
                                         data: history?.water_level_percent || [],
-                                        backgroundColor: "#3e7fc955",
-                                        borderColor: "#3e7fc9",
+                                        backgroundColor: withAlpha(colors.blue, "55"),
+                                        borderColor: colors.blue,
                                         borderWidth: 1,
                                         borderRadius: 4,
                                     },
