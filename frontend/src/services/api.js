@@ -29,7 +29,6 @@ export function getActuatorUsage(range = "today") {
 }
 
 // GET /api/sensors/export?range=today|week|month
-// Mengunduh data sensor dalam format Excel (.xlsx) sebagai file
 export async function exportSensorExcel(range = "today") {
     const res = await fetch(`${BASE_URL}/api/sensors/export?range=${range}`);
 
@@ -62,6 +61,7 @@ export function setActuator(nama, nyala) {
         body: JSON.stringify({ nyala }),
     }).then(handleResponse);
 }
+
 export function getEsps() {
     return fetch(`${BASE_URL}/api/esp`).then(handleResponse);
 }
@@ -77,4 +77,9 @@ export function registerEsp(esp_name, location) {
 export function getAverageSuhu(espList) {
     const qs = Array.isArray(espList) && espList.length ? `?esp=${espList.join(",")}` : "";
     return fetch(`${BASE_URL}/api/sensors/average-suhu${qs}`).then(handleResponse);
+}
+
+// NEW: GET /api/weather
+export function getWeather() {
+    return fetch(`${BASE_URL}/api/weather`).then(handleResponse);
 }

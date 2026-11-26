@@ -4,6 +4,7 @@
     z-index: 60;
     display: flex;
     justify-content: flex-end;
+    overflow: hidden;
 }
 
 .detection-backdrop {
@@ -13,10 +14,10 @@
     padding: 0;
     cursor: pointer;
     background: rgba(20, 30, 26, 0.42);
-    backdrop-filter: blur(3px);
     animation: detection-fade 200ms ease both;
 }
 
+/* Panel masuk dari tepi layar: satu arah gerak yang jelas, bukan fade bergoyang */
 .detection-panel {
     position: relative;
     display: flex;
@@ -26,7 +27,12 @@
     background: var(--page-bg);
     border-left: 1px solid rgba(227, 224, 213, 0.9);
     box-shadow: -24px 0 60px -30px rgba(20, 30, 26, 0.55);
-    animation: detection-slide 260ms cubic-bezier(0.22, 0.68, 0.35, 1) both;
+    animation: detection-slide 220ms cubic-bezier(0.22, 0.68, 0.35, 1) both;
+}
+
+/* Panel difokuskan secara programatik saat dibuka; outline tidak perlu */
+.detection-panel:focus {
+    outline: none;
 }
 
 .detection-header {
@@ -43,20 +49,22 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border-radius: var(--radius-control);
     border: 1px solid var(--color-line);
     background: #fff;
     color: var(--color-mute);
     cursor: pointer;
-    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, transform 120ms ease;
 }
 
-.detection-close:hover {
-    color: var(--color-ink);
-    background: var(--color-leaf-light);
-    border-color: rgba(47, 107, 79, 0.35);
+@media (hover: hover) and (pointer: fine) {
+    .detection-close:hover {
+        color: var(--color-ink);
+        background: var(--color-leaf-light);
+        border-color: rgba(47, 107, 79, 0.35);
+    }
 }
 
 .detection-body {
@@ -76,7 +84,7 @@
     width: 100%;
     aspect-ratio: 16 / 10;
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: var(--radius-inner);
     border: 1px solid #2a3630;
     background: #121a16;
 }
@@ -102,7 +110,6 @@
     text-align: center;
     color: #e8f0ea;
     background: rgba(15, 22, 19, 0.82);
-    backdrop-filter: blur(2px);
 }
 
 .detection-overlay-msg p {
@@ -146,11 +153,13 @@
     font-weight: 600;
     color: #d6f2e0;
     cursor: pointer;
-    transition: background-color 160ms ease;
+    transition: background-color 160ms ease, transform 120ms ease;
 }
 
-.detection-retry:hover {
-    background: rgba(143, 211, 172, 0.24);
+@media (hover: hover) and (pointer: fine) {
+    .detection-retry:hover {
+        background: rgba(143, 211, 172, 0.24);
+    }
 }
 
 /* Bounding box overlay */
@@ -186,7 +195,7 @@
 
 .detection-stat {
     border: 1px solid var(--color-line);
-    border-radius: 12px;
+    border-radius: var(--radius-inner);
     background: #fff;
     padding: 0.6rem 0.7rem;
 }
@@ -212,7 +221,7 @@
 /* ---------------------------------------------------------------- */
 .detection-help {
     border: 1px solid var(--color-line);
-    border-radius: 12px;
+    border-radius: var(--radius-inner);
     background: #fff;
     padding: 0.7rem 0.85rem;
     font-size: 11px;
@@ -251,12 +260,10 @@
 /* ---------------------------------------------------------------- */
 @keyframes detection-slide {
     from {
-        transform: translateX(24px);
-        opacity: 0;
+        transform: translateX(100%);
     }
     to {
         transform: translateX(0);
-        opacity: 1;
     }
 }
 
@@ -289,8 +296,13 @@
         height: min(92vh, 100%);
         border-left: none;
         border-top: 1px solid rgba(227, 224, 213, 0.9);
-        border-radius: 22px 22px 0 0;
-        animation: detection-sheet 260ms cubic-bezier(0.22, 0.68, 0.35, 1) both;
+        border-radius: var(--radius-card) var(--radius-card) 0 0;
+        animation: detection-sheet 220ms cubic-bezier(0.22, 0.68, 0.35, 1) both;
+    }
+
+    .detection-close {
+        width: 44px;
+        height: 44px;
     }
 
     .detection-header {
@@ -308,11 +320,9 @@
 
 @keyframes detection-sheet {
     from {
-        transform: translateY(32px);
-        opacity: 0;
+        transform: translateY(100%);
     }
     to {
         transform: translateY(0);
-        opacity: 1;
     }
 }

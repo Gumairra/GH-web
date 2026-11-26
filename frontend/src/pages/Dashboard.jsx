@@ -4,6 +4,7 @@ import WaterLevel from "../components/WaterLevel";
 import EspSelector from "../components/EspSelector";
 import { getLatestSensor, getEsps, getAverageSuhu } from "../services/api";
 import { relativeFrom, isOlderThan, isWithin } from "../utils/time";
+import WeatherWidget from "../components/WeatherWidget";
 import "./Dashboard.css";
 
 const POLL_MS = 3 * 60 * 1000;          // data sensor diambil tiap 3 menit
@@ -144,7 +145,7 @@ function Dashboard() {
 
             {/* Notifikasi error yang bisa ditutup */}
             {showError && (
-                <div className="dashboard-alert animate-fade-up" role="alert">
+                <div className="dashboard-alert" role="alert">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                         <circle cx="12" cy="12" r="9" />
                         <path d="M12 8v4" />
@@ -255,6 +256,11 @@ function Dashboard() {
                     {data?.esp_name && <span className="chip chip--neutral">{data.esp_name}</span>}
                 </div>
             </div>
+
+            {/* Weather Widget */}
+            {data && (
+                <WeatherWidget insideTemp={sensors.find((s) => s.title === "Suhu Udara")?.value ?? null} />
+            )}
 
             <SensorSection sensors={sensors} loading={loading} updatedAt={data?.updatedAt} />
 

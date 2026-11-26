@@ -38,7 +38,7 @@
     gap: 0.75rem;
     margin-bottom: 1.5rem;
     border: 1px solid var(--color-line);
-    border-radius: 12px;
+    border-radius: var(--radius-inner);
     background: var(--page-bg);
     padding: 0.5rem 0.6rem;
 }
@@ -61,11 +61,13 @@
     font-weight: 600;
     color: var(--color-mute);
     cursor: pointer;
-    transition: color 160ms ease, background-color 160ms ease;
+    transition: color 160ms ease, background-color 160ms ease, transform 120ms ease;
 }
 
-.statistics-range-button:hover {
-    color: var(--color-ink);
+@media (hover: hover) and (pointer: fine) {
+    .statistics-range-button:hover {
+        color: var(--color-ink);
+    }
 }
 
 .statistics-range-button--active {
@@ -88,7 +90,9 @@
 .statistics-export {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
+    min-width: 118px;
     border-radius: var(--radius-control);
     border: 1px solid var(--color-leaf);
     background: var(--color-leaf);
@@ -97,12 +101,14 @@
     font-weight: 600;
     color: #fff;
     cursor: pointer;
-    transition: background-color 160ms ease, border-color 160ms ease;
+    transition: background-color 160ms ease, border-color 160ms ease, transform 120ms ease;
 }
 
-.statistics-export:hover:not(:disabled) {
-    background: var(--color-leaf-dark);
-    border-color: var(--color-leaf-dark);
+@media (hover: hover) and (pointer: fine) {
+    .statistics-export:hover:not(:disabled) {
+        background: var(--color-leaf-dark);
+        border-color: var(--color-leaf-dark);
+    }
 }
 
 .statistics-export:disabled {
@@ -134,7 +140,7 @@
     gap: 0.6rem;
     margin-bottom: 1.25rem;
     border: 1px solid rgba(179, 67, 59, 0.28);
-    border-radius: 12px;
+    border-radius: var(--radius-inner);
     background: var(--color-danger-soft);
     padding: 0.65rem 0.85rem;
     font-size: 12px;
@@ -153,10 +159,13 @@
     opacity: 0.7;
     padding: 0.1rem;
     line-height: 0;
+    transition: opacity 160ms ease, transform 120ms ease;
 }
 
-.statistics-alert button:hover {
-    opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+    .statistics-alert button:hover {
+        opacity: 1;
+    }
 }
 
 /* ---------------------------------------------------------------- */

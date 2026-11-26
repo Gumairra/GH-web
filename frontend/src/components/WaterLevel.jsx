@@ -30,9 +30,7 @@ function WaterLevel({ percent = 0, height = 0, status = "Cukup" }) {
                     <div
                         className={`waterlevel-fill waterlevel-fill--${tone}`}
                         style={{ height: `${safePercent}%` }}
-                    >
-                        <span className="waterlevel-wave" />
-                    </div>
+                    />
 
                     {/* Penanda level minimum */}
                     <div className="waterlevel-min" style={{ bottom: `${MIN_PERCENT}%` }}>

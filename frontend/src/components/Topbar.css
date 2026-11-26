@@ -30,15 +30,10 @@
     font-weight: 600;
     color: var(--color-mute);
     text-decoration: none;
-    transition: color 160ms ease, background-color 160ms ease;
+    transition: color 160ms ease, background-color 160ms ease, transform 120ms ease;
     background: transparent;
     border: none;
     cursor: pointer;
-}
-
-.topbar-link:hover {
-    color: var(--color-ink);
-    background: rgba(36, 48, 51, 0.05);
 }
 
 .topbar-link--active {
@@ -51,44 +46,36 @@
     color: var(--color-ink);
 }
 
-.topbar-icon-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
-    border-radius: var(--radius-control);
-    border: 1px solid var(--color-line);
-    background: #ffffff;
-    color: var(--color-ink);
-    cursor: pointer;
-    transition: border-color 160ms ease, background-color 160ms ease;
-}
-
-.topbar-icon-btn:hover {
-    border-color: var(--color-leaf);
-    background: var(--color-leaf-light);
-}
-
+/* Target sentuh 40px karena tombol ini hanya tampil di layar sentuh */
+.topbar-icon-btn,
 .topbar-burger {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
     border-radius: var(--radius-control);
     border: 1px solid var(--color-line);
     background: #ffffff;
     color: var(--color-ink);
     cursor: pointer;
-    transition: border-color 160ms ease, background-color 160ms ease;
+    transition: border-color 160ms ease, background-color 160ms ease, transform 120ms ease;
 }
 
-.topbar-burger:hover {
-    border-color: var(--color-leaf);
-    background: var(--color-leaf-light);
+/* Hover hanya untuk perangkat yang punya kursor sungguhan,
+   supaya efek hover tidak menempel setelah tap di layar sentuh. */
+@media (hover: hover) and (pointer: fine) {
+    .topbar-link:hover {
+        color: var(--color-ink);
+        background: rgba(36, 48, 51, 0.05);
+    }
+
+    .topbar-icon-btn:hover,
+    .topbar-burger:hover {
+        border-color: var(--color-leaf);
+        background: var(--color-leaf-light);
+    }
 }
 
 .topbar-mobile {
@@ -98,6 +85,19 @@
     border-top: 1px solid var(--color-line);
     background: var(--page-bg);
     padding: 0.6rem 1.25rem 1rem;
+    transform-origin: top right;
+    animation: topbar-menu-in 120ms ease-out both;
+}
+
+@keyframes topbar-menu-in {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .topbar-mobile .topbar-link {

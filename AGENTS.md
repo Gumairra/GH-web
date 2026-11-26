@@ -64,8 +64,8 @@ backend/
     ├── config/mqttClient.js      # koneksi MQTT (mqtt/mqtts)
     ├── mqtt/sensorSubscriber.js  # subscribe sensor -> INSERT DB + upsert esp_devices
     ├── mqtt/actuatorPublisher.js # publish perintah aktuator
-    ├── controllers/              # sensor, actuator, esp
-    ├── routes/                   # sensor, actuator, esp
+    ├── controllers/              # sensor, actuator, esp, weather
+    ├── routes/                   # sensor, actuator, esp, weather
     └── utils/                    # dateRange, sensorThresholds
 ```
 
@@ -84,11 +84,12 @@ backend/
 | GET | `/api/actuators/usage?range=...` | pemakaian aktuator |
 | POST | `/api/actuators/log` | log ON/OFF aktuator |
 | POST | `/api/actuators/:nama/set` | kirim perintah ke ESP (`kipas`, `lampu`, `pompaAir`, `pompaNutrisi`) |
+| GET | `/api/weather?adm4=32.73.14.1002` | prakiraan cuaca BMKG (Cikutra, Bandung) dengan in-memory cache |
 
 Catatan: route `/api/esp` dipasang di `src/app.js`. Controller
 `getAverageSuhu` berada di `esp.controller.js`, tetapi route-nya didaftarkan
 di `src/routes/sensor.routes.js` agar URL-nya `/api/sensors/average-suhu`
-( sesuai yang dipanggil `frontend/src/services/api.js` ).
+(sesuai yang dipanggil `frontend/src/services/api.js`).
 
 ## Payload MQTT Sensor (dari ESP induk)
 
@@ -116,13 +117,15 @@ Mapping ke kolom DB: `suhuUdara→suhu_udara`, `kelembapan→humidity`,
 - `src/components/Topbar.jsx` — satu-satunya navigasi (Monitoring, Statistik,
   Object Detection), status ESP online berbasis teks (tanpa badge LIVE palsu),
   jam, dan menu mobile.
+- `src/components/WeatherWidget.jsx` — widget prakiraan cuaca luar ruangan BMKG (Cikutra, Bandung) dengan ikon SVG dinamis, suhu, kelembapan, kecepatan angin, dan perbandingan suhu luar vs dalam greenhouse (`insideTemp`).
 - `src/components/ObjectDetectionDrawer.jsx` — panel deteksi objek real-time
   (stream MJPEG + metadata WebSocket). Status live/offline hanya ditampilkan
-  di drawer berdasarkan koneksi sebenarnya. Lihat bagian di bawah.
+  di drawer berdasarkan koneksi sebenarnya. Dialog mengunci scroll, menjebak
+  Tab, dan mengembalikan fokus ke tombol pemicu saat ditutup.
 - `src/pages/Dashboard.jsx` — polling tiap **3 menit**, strip KPI (status
-  greenhouse, rata-rata suhu, ESP online, pembacaan terakhir), skeleton saat
-  memuat, banner error yang bisa ditutup, tombol **Perbarui**, chip data basi
-  (> 15 menit), dropdown ESP.
+  greenhouse, rata-rata suhu, ESP online, pembacaan terakhir), WeatherWidget,
+  skeleton saat memuat, banner error yang bisa ditutup, tombol **Perbarui**,
+  chip data basi (> 15 menit), dropdown ESP.
 - `src/pages/Statistics.jsx` — polling tiap **3 menit**, toolbar sticky
   (filter range + **Unduh Excel** dengan status loading), skeleton, empty state,
   kartu ringkasan, dan bar pemakaian aktuator.
@@ -150,26 +153,56 @@ backend Express):
 | `GET {DETECTION_URL}/video_feed` | stream MJPEG untuk `<img src>` |
 | `WS {DETECTION_URL}/ws/detections` | metadata JSON (opsional) |
 
-Contoh payload WebSocket:
-
-```json
-{ "fps": 12, "objects": [
-  { "label": "daun", "confidence": 0.91, "box": [0.12, 0.20, 0.30, 0.42] }
-] }
-```
-
-`box` memakai koordinat ternormalisasi 0–1 (`x, y, w, h`); nilai > 1.5 diabaikan.
-Konfigurasi lewat env frontend (opsional, ada default):
+### Struktur Server Python
 
 ```
+backend/
+├── server.js              # entrypoint Express (backend utama)
+├── object_detection/      # PYTHON SERVER (uvicorn)
+│   ├── main.py            # FastAPI server: video_feed + ws/detections
+│   ├── requirements.txt   # dependencies Python
+│   ├── start.bat          # script start server
+│   └── README.md          # dokumentasi setup
+└── src/                   # folder source Express lainnya
+```
+
+### Cara Menjalankan Server Python
+
+```bash
+cd backend/object_detection
+pip install -r requirements.txt
+python main.py
+```
+
+### Konfigurasi Environment Python
+
+| Variable | Deskripsi | Default |
+|----------|-----------|---------|
+| `CAMERA_INDEX` | Index kamera USB (1 untuk USB Camera, 0 untuk Integrated) | 1 |
+| `MODEL` | Model YOLO path/nama | yolov8n.pt |
+| `CONF_THRESHOLD` | Confidence threshold | 0.25 |
+| `FRAME_SKIP` | Frame yang dilewati | 2 |
+
+> **Catatan:** Untuk menemukan index kamera USB di Windows, gunakan script Python:
+> ```python
+> import cv2
+> for i in range(10):
+>     cap = cv2.VideoCapture(i)
+>     if cap.isOpened():
+>         print(f"Kamera ditemukan di index: {i}")
+>         cap.release()
+> ```
+
+### Frontend Konfigurasi
+
+Frontend mengakses Python server lewat environment:
+
+```bash
+# frontend/.env
 VITE_DETECTION_URL=http://localhost:8000
 VITE_DETECTION_STREAM_URL=http://localhost:8000/video_feed
 VITE_DETECTION_WS_URL=ws://localhost:8000/ws/detections
 ```
-
-Bila server belum jalan, drawer menampilkan status **Terputus**, URL yang
-dipakai, dan tombol **Coba lagi** (tidak membuat halaman error).
-
 
 ## Konvensi Kode
 
@@ -181,31 +214,12 @@ dipakai, dan tombol **Coba lagi** (tidak membuat halaman error).
 
 ## Riwayat Perubahan Penting
 
+- 2026-11-20: Implementasi **Weather Widget** (Opsi C) untuk menampilkan prakiraan cuaca BMKG di Cikutra, Bandung (`adm4: 32.73.14.1002`). Menambahkan endpoint backend `/api/weather` dengan in-memory cache (TTL 1 jam) dan komponen frontend `WeatherWidget.jsx` yang menampilkan ikon cuaca SVG dari BMKG, suhu, kelembapan, angin, serta perbandingan suhu luar vs dalam greenhouse.
+- 2026-11-18: Review `emil-design-eng` + `remove-animations`: menghapus riak air tandon, shimmer skeleton (kini placeholder statis), `scroll-behavior: smooth` global, dan animasi masuk banner error. Drawer kini masuk dari tepi layar (bukan fade bergoyang 24px), menu mobile tumbuh dari pemicunya (120ms). Menambah state `:active` pada tombol, membatasi semua `:hover` dengan `@media (hover: hover) and (pointer: fine)`, menghapus `backdrop-filter` di atas stream MJPEG, menambah focus trap + pemulihan fokus pada drawer dan tombol Escape pada menu mobile, memperbaiki chip KPI yang mewarisi font monospace, menaikkan target sentuh tombol menjadi 40/44px, memendekkan transisi bar data ke 180–280ms, serta menambah token `--radius-inner` dan `role="progressbar"` pada bar sensor.
 - 2026-11-17: Pembersihan UI "anti AI-slop": menghapus badge LIVE palsu & dot berdenyut di navbar, menghapus shimmer/gradient hover, menghapus dua tombol Object Detection yang duplikat di desktop, menghapus ~120 baris CSS mati (`.bento-card*`, `.dashboard-bento-grid`, `.kpi-sparkline`, `.water-level-section`), menyatukan `.kpi-card` (sebelumnya dobel di `index.css` + `Dashboard.css`), mengganti Bento `nth-child` dengan grid `auto-fit`, menghapus latar blob radial, dan mengganti label uppercase ber-tracking dengan label normal. Warna grafik kini dibaca dari token CSS; konfigurasi env server deteksi dipindah ke `<details>`.
-- 2026-11-16: Modernisasi UI Dashboard (Bento Grid): Menerapkan layout Bento Box pada `SensorSection` (2 kartu parameter utama di baris atas dengan lebar lebih besar, dan 3 kartu parameter pendukung di baris bawah) serta memperhalus permukaan `SensorCard` dengan gradien halus dan efek *lift* saat hover.
-- 2026-11-16: Modernisasi UI Navbar: Mengubah "Object Detection" di Navbar menjadi "Vision Hub LIVE" dengan indikator deteksi real-time (dot berdenyut, badge live, dan efek hover glow). Menambahkan gaya glassmorphism yang lebih dalam pada `Topbar`.
-- 2026-11-15: Modernisasi UI Fase 1: `index.html` (title, meta, Google Fonts),
-  token desain di `index.css`, `Topbar` sticky sebagai satu-satunya navigasi,
-  `MainLayout` menjadi app shell + footer.
-- 2026-11-15: Panel **Object Detection** di navbar (`ObjectDetectionDrawer`)
-  dengan stream MJPEG + WebSocket, status live/offline, dan konfigurasi env
-  `VITE_DETECTION_URL` / `VITE_DETECTION_STREAM_URL` / `VITE_DETECTION_WS_URL`.
-- 2026-11-15: Dashboard: strip KPI, skeleton, banner error, tombol perbarui,
-  chip data basi, kartu sensor berikon + chip status, tangki air dengan penanda
-  level minimum 40%.
-- 2026-11-15: Statistik: toolbar sticky, skeleton/empty state, kartu ringkasan
-  baru, bar pemakaian aktuator, chart bertema.
-- 2026-11-15: Bersih-bersih: hapus `App.css`, `Header.jsx`, `Header.css`,
-  `AverageTemperature.jsx`, `ActuatorCard.jsx`, `pages/Stats.jsx`,
-  `pages/GreenhouseDetail.jsx`. `npm run lint` bersih (1 warning lama di
-  `EspSelector`), `npm run build` sukses.
-- 2026-11-06: Perbaikan error: route `/api/sensors/average-suhu` didaftarkan
-  di `sensor.routes.js` (sebelumnya hanya ada di `/api/esp/average-suhu`
-  sehingga frontend mendapat 404).
-- 2026-11-06: Konsolidasi env menjadi satu `backend/.env` (`.env.example` dihapus).
-- 2026-11-06: `db.js` mendukung `PGSSL`; upsert `esp_devices` dipisah agar
-  kegagalannya tidak menggagalkan penyimpanan data sensor.
-- 2026-11-06: Migrasi `esp_devices` dijalankan di database aktif (`postgres`).
+- 2026-11-16: Modernisasi UI Dashboard (Bento Grid) & Navbar.
+- 2026-11-15: Modernisasi UI Fase 1, Panel Object Detection, Dashboard KPI, Statistik.
+- 2026-11-06: Perbaikan error route `/api/sensors/average-suhu`, konsolidasi env `.env`, dukungan `PGSSL`.
 - 2026-11-05: Fitur ESP-NOW (multi-node, selector ESP, rata-rata suhu).
 - 2026-11-04: Export Excel + polling 3 menit.
 

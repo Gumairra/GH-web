@@ -29,11 +29,8 @@
     /* Elevasi & radius */
     --shadow-card: 0 1px 2px rgba(36, 48, 51, 0.04);
     --radius-control: 10px;
+    --radius-inner: 12px;
     --radius-card: 16px;
-}
-
-html {
-    scroll-behavior: smooth;
 }
 
 body {
@@ -88,6 +85,8 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    /* Ikut font induk: chip di dalam angka monospace tidak boleh jadi monospace */
+    font-family: inherit;
     border-radius: 9999px;
     padding: 0.2rem 0.55rem;
     font-size: 11px;
@@ -108,7 +107,16 @@ body {
 :focus-visible {
     outline: 2px solid var(--color-leaf);
     outline-offset: 2px;
-    border-radius: 6px;
+}
+
+/* Umpan balik tekan: harus terasa saat pointer down, bukan setelah klik selesai.
+   Backdrop drawer sengaja dikecualikan agar tidak menyusut. */
+.topbar a:active,
+.topbar button:active,
+.dashboard-page button:active,
+.statistics-page button:active,
+.detection-panel button:active {
+    transform: scale(0.97);
 }
 
 ::selection {
@@ -129,33 +137,19 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-@keyframes fade-up {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-up {
-    animation: fade-up 320ms ease both;
-}
-
-@keyframes shimmer {
-    0% { background-position: -400px 0; }
-    100% { background-position: 400px 0; }
-}
-
+/* Placeholder statis: loading di app ini terlalu singkat untuk shimmer,
+   dan sweep gradient di banyak kartu sekaligus memicu repaint mahal. */
 .skeleton {
     border-radius: 10px;
-    background: linear-gradient(90deg, #efebe1 25%, #f7f4ec 37%, #efebe1 63%);
-    background-size: 800px 100%;
-    animation: shimmer 1.4s linear infinite;
+    background: #efebe1;
 }
 
+/* Pergeseran tinggi/lebar bar data cukup singkat agar terasa responsif */
 .usage-bar {
-    transition: width 0.6s ease;
+    transition: width 180ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;

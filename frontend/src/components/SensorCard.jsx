@@ -20,7 +20,9 @@ function SensorCard({
     progress = 0,
 }) {
     const tone = toneFor(status);
-    const width = `${Math.max(6, Math.min(progress, 100))}%`;
+    // Jaga nilai progress tetap angka valid agar lebar bar dan aria-valuenow tidak NaN
+    const safeProgress = Math.max(0, Math.min(Number(progress) || 0, 100));
+    const width = `${Math.max(6, safeProgress)}%`;
 
     return (
         <article className="sensor-card">
@@ -44,7 +46,7 @@ function SensorCard({
             </div>
 
             <div className="sensor-card-foot">
-                <div className="sensor-card-bar">
+                <div className="sensor-card-bar" role="progressbar" aria-label={`${title} ${value} ${unit}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(safeProgress)}>
                     <span
                         className={`sensor-card-bar-fill sensor-card-bar-fill--${tone}`}
                         style={{ width }}

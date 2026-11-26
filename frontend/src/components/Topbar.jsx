@@ -14,6 +14,7 @@ function Topbar({ onOpenDetection }) {
         apiOnline: true,
     });
     const menuRef = useRef(null);
+    const burgerRef = useRef(null);
 
     // Jam berjalan
     useEffect(() => {
@@ -61,6 +62,18 @@ function Topbar({ onOpenDetection }) {
         };
         document.addEventListener("mousedown", onClick);
         return () => document.removeEventListener("mousedown", onClick);
+    }, [menuOpen]);
+
+    // Escape menutup menu dan mengembalikan fokus ke tombol pemicu
+    useEffect(() => {
+        if (!menuOpen) return;
+        const onKey = (e) => {
+            if (e.key !== "Escape") return;
+            setMenuOpen(false);
+            burgerRef.current?.focus({ preventScroll: true });
+        };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
     }, [menuOpen]);
 
     const formattedTime = currentTime.toLocaleTimeString("id-ID", { hour12: false });
@@ -164,6 +177,7 @@ function Topbar({ onOpenDetection }) {
                     <button
                         type="button"
                         className="topbar-burger lg:hidden"
+                        ref={burgerRef}
                         aria-label="Buka menu navigasi"
                         aria-expanded={menuOpen}
                         onClick={() => setMenuOpen((v) => !v)}
@@ -188,7 +202,7 @@ function Topbar({ onOpenDetection }) {
 
             {/* Menu mobile */}
             {menuOpen && (
-                <div className="topbar-mobile animate-fade-up lg:hidden">
+                <div className="topbar-mobile lg:hidden">
                     <NavLink to="/" end className={navLinkClass} onClick={() => setMenuOpen(false)}>
                         Monitoring
                     </NavLink>

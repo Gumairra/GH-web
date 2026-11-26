@@ -1,0 +1,13 @@
+.weather-card {
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.weather-card:hover {
+    box-shadow: 0 4px 12px rgba(36, 48, 51, 0.06);
+}
+
+.weather-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}

@@ -71,6 +71,43 @@ function ObjectDetectionDrawer({ open, onClose }) {
         return () => window.removeEventListener("keydown", onKey);
     }, [open, onClose]);
 
+    // Fokuskan panel saat dibuka, kembalikan ke pemicu saat ditutup
+    useEffect(() => {
+        if (!open) return;
+        const trigger = document.activeElement;
+        panelRef.current?.focus({ preventScroll: true });
+        return () => {
+            if (trigger instanceof HTMLElement) {
+                trigger.focus({ preventScroll: true });
+            }
+        };
+    }, [open]);
+
+    // Jebak Tab di dalam panel karena ini dialog modal
+    useEffect(() => {
+        if (!open) return;
+        const onKeyDown = (e) => {
+            if (e.key !== "Tab") return;
+            const panel = panelRef.current;
+            if (!panel) return;
+            const focusables = panel.querySelectorAll(
+                'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
+            );
+            if (!focusables.length) return;
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        };
+        document.addEventListener("keydown", onKeyDown);
+        return () => document.removeEventListener("keydown", onKeyDown);
+    }, [open]);
+
     // WebSocket metadata deteksi (opsional; stream tetap jalan tanpanya)
     useEffect(() => {
         if (!open) return;
@@ -153,7 +190,7 @@ function ObjectDetectionDrawer({ open, onClose }) {
                 onClick={onClose}
             />
 
-            <aside className="detection-panel" ref={panelRef}>
+            <aside className="detection-panel" ref={panelRef} tabIndex={-1}>
                 <header className="detection-header">
                     <h2 className="font-display text-xl font-semibold text-ink">
                         Object Detection

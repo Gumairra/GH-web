@@ -5,6 +5,7 @@ require("dotenv").config();
 const sensorRoutes = require("./routes/sensor.routes");
 const actuatorRoutes = require("./routes/actuator.routes");
 const espRoutes = require("./routes/esp.routes");
+const weatherRoutes = require("./routes/weather.routes");
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/sensors", sensorRoutes);
 app.use("/api/actuators", actuatorRoutes);
 app.use("/api/esp", espRoutes);
+app.use("/api/weather", weatherRoutes);
 
 app.use((req, res) => {
     res.status(404).json({ message: "Endpoint tidak ditemukan" });

@@ -50,7 +50,7 @@
     right: 0;
     overflow: hidden;
     background: linear-gradient(180deg, #63a8e0 0%, var(--color-blue) 100%);
-    transition: height 700ms cubic-bezier(0.33, 1, 0.68, 1), background 300ms ease;
+    transition: height 280ms cubic-bezier(0.2, 0, 0, 1), background 300ms ease;
 }
 
 .waterlevel-fill--warning {
@@ -65,22 +65,6 @@
     background: linear-gradient(180deg, #cfc9bb 0%, #b8b1a1 100%);
 }
 
-/* Riak air tipis di permukaan */
-.waterlevel-wave {
-    position: absolute;
-    top: -4px;
-    left: -50%;
-    width: 200%;
-    height: 8px;
-    background: radial-gradient(circle at 50% 0, rgba(255, 255, 255, 0.55), transparent 70%);
-    animation: waterlevel-wave 3.6s ease-in-out infinite;
-}
-
-@keyframes waterlevel-wave {
-    0%, 100% { transform: translateX(-4%); }
-    50% { transform: translateX(4%); }
-}
-
 /* Garis level minimum */
 .waterlevel-min {
     position: absolute;
@@ -93,10 +77,10 @@
 .waterlevel-min-label {
     position: absolute;
     right: 6px;
-    top: -14px;
-    font-size: 8.5px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
+    top: -15px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     color: #a2443d;
     background: rgba(255, 255, 255, 0.82);
     border-radius: 4px;
